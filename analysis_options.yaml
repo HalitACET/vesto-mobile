@@ -1,0 +1,32 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  plugins:
+    - custom_lint
+  errors:
+    invalid_annotation_target: ignore
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+custom_lint:
+  rules:
+    - provider_dependencies: false
+
+linter:
+  rules:
+    # Tip güvenliği
+    avoid_dynamic_calls: true
+    avoid_type_to_string: true
+    unnecessary_null_checks: true
+
+    # Kod kalitesi
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    avoid_print: true
+    use_super_parameters: true
+
+    # Riverpod uyumluluğu
+    always_use_package_imports: true
