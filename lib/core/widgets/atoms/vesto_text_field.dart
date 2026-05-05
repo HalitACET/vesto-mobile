@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show TextInputFormatter;
 
 import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
@@ -22,6 +23,7 @@ class VestoTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.autofillHints,
+    this.inputFormatters,
   });
 
   final TextEditingController? controller;
@@ -37,6 +39,7 @@ class VestoTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final Iterable<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<VestoTextField> createState() => _VestoTextFieldState();
@@ -100,6 +103,7 @@ class _VestoTextFieldState extends State<VestoTextField> {
             onChanged: widget.onChanged,
             onSubmitted: widget.onSubmitted,
             autofillHints: widget.autofillHints,
+            inputFormatters: widget.inputFormatters,
             style: AppTypography.bodyMedium.copyWith(
               color: widget.enabled
                   ? (isDark ? AppColors.pearl : AppColors.onyx)

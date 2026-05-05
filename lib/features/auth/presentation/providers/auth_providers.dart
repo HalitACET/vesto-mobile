@@ -17,23 +17,16 @@ Stream<User?> authStateChanges(Ref ref) {
 /// Firestore'dan AppUser stream — UI ve iş mantığı için kullanılır.
 @riverpod
 Stream<AppUser?> currentUser(Ref ref) {
-  final authState = ref.watch(authStateChangesProvider);
-  final uid = authState.valueOrNull?.uid;
+  final uid = ref.watch(authStateChangesProvider).valueOrNull?.uid;
   if (uid == null) return const Stream.empty();
-  return ref.watch(authRepositoryProvider).userStream(uid);
+  return ref.watch(authRepositoryProvider).watchUser(uid);
 }
 
-/// Anonim giriş aksiyonu — UI'dan tetiklenir.
+/// Genel auth aksiyonları (signOut). Login/Signup ayrı notifier'larda.
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
   @override
   AsyncValue<void> build() => const AsyncData(null);
-
-  Future<void> signInAnonymously() async {
-    state = const AsyncLoading();
-    final (_, failure) = await ref.read(authRepositoryProvider).signInAnonymously();
-    state = failure != null ? AsyncError(failure, StackTrace.current) : const AsyncData(null);
-  }
 
   Future<void> signOut() async {
     state = const AsyncLoading();

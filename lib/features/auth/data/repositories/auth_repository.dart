@@ -1,20 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:mobile/core/errors/app_exception.dart';
-import 'package:mobile/core/errors/failure.dart';
 import 'package:mobile/core/network/firebase_providers.dart';
+import 'package:mobile/core/utils/result.dart';
+import 'package:mobile/features/auth/data/exceptions/auth_exceptions.dart';
 import 'package:mobile/features/auth/data/models/app_user.dart';
 
 part 'auth_repository.g.dart';
+
+@riverpod
+GoogleSignIn googleSignIn(Ref ref) => GoogleSignIn();
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
   return AuthRepository(
     auth: ref.watch(firebaseAuthProvider),
     firestore: ref.watch(firestoreProvider),
+    googleSignIn: ref.watch(googleSignInProvider),
   );
 }
 
@@ -22,63 +27,153 @@ class AuthRepository {
   const AuthRepository({
     required FirebaseAuth auth,
     required FirebaseFirestore firestore,
+    required GoogleSignIn googleSignIn,
   })  : _auth = auth,
-        _firestore = firestore;
+        _firestore = firestore,
+        _googleSignIn = googleSignIn;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
+
+  // ── Public API ──────────────────────────────────────────────────────────────
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  /// Firestore'dan AppUser stream'i — auth değiştiğinde otomatik güncellenir.
-  Stream<AppUser?> userStream(String uid) {
+  /// Firestore'dan AppUser stream — currentUserProvider tarafından kullanılır.
+  Stream<AppUser?> watchUser(String uid) {
     return _firestore
         .collection('users')
         .doc(uid)
         .snapshots()
-        .map((doc) => doc.exists ? AppUser.fromFirestore(doc.data()!, doc.id) : null);
+        .map((doc) =>
+            doc.exists ? AppUser.fromFirestore(doc.data()!, doc.id) : null);
   }
 
-  /// Anonim giriş (Hafta 1 için). Gerçek auth Hafta 3'te gelecek.
-  Future<(AppUser?, Failure?)> signInAnonymously() async {
+  Future<Result<AppUser, AuthFailure>> signInWithEmailPassword(
+    String email,
+    String password,
+  ) async {
     try {
-      final credential = await _auth.signInAnonymously();
-      final user = credential.user;
-      if (user == null) return (null, const AuthFailure('Kullanıcı oluşturulamadı.'));
-
-      final appUser = await _ensureUserDocument(user);
-      return (appUser, null);
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final appUser = await _ensureUserDocument(credential.user!);
+      return Ok(appUser);
     } on FirebaseAuthException catch (e) {
-      return (null, AuthFailure(e.message ?? 'Kimlik doğrulama hatası.'));
-    } on AppException catch (e) {
-      return (null, ServerFailure(e.message));
+      return Err(mapFirebaseAuthCode(e.code, e.message));
     } catch (_) {
-      return (null, const UnexpectedFailure());
+      return const Err(UnknownAuthFailure());
+    }
+  }
+
+  Future<Result<AppUser, AuthFailure>> signUpWithEmailPassword({
+    required String email,
+    required String password,
+    required String displayName,
+  }) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      await credential.user!.updateDisplayName(displayName.trim());
+      final appUser = await _createUserDocument(
+        credential.user!,
+        displayName: displayName.trim(),
+      );
+      return Ok(appUser);
+    } on FirebaseAuthException catch (e) {
+      return Err(mapFirebaseAuthCode(e.code, e.message));
+    } catch (_) {
+      return const Err(UnknownAuthFailure());
+    }
+  }
+
+  Future<Result<AppUser, AuthFailure>> signInWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return const Err(CancelledAuthFailure());
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      final appUser = await _ensureUserDocument(userCredential.user!);
+      return Ok(appUser);
+    } on FirebaseAuthException catch (e) {
+      return Err(mapFirebaseAuthCode(e.code, e.message));
+    } catch (_) {
+      return const Err(UnknownAuthFailure());
+    }
+  }
+
+  Future<Result<void, AuthFailure>> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+      return const Ok(null);
+    } on FirebaseAuthException catch (e) {
+      return Err(mapFirebaseAuthCode(e.code, e.message));
+    } catch (_) {
+      return const Err(UnknownAuthFailure());
+    }
+  }
+
+  Future<Result<AppUser, AuthFailure>> updateProfile(AppUser user) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .update(user.toFirestore());
+      return Ok(user);
+    } catch (_) {
+      return const Err(UnknownAuthFailure('Profil güncellenemedi.'));
     }
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
   }
 
-  /// Kullanıcı ilk girişinde Firestore'da document oluşturur, varsa dokunmaz.
+  // ── Private Helpers ─────────────────────────────────────────────────────────
+
+  /// İlk girişte Firestore document oluşturur, varsa mevcut veriyi döner.
   Future<AppUser> _ensureUserDocument(User firebaseUser) async {
     final docRef = _firestore.collection('users').doc(firebaseUser.uid);
     final doc = await docRef.get();
 
     if (!doc.exists) {
-      final newUser = AppUser(
-        uid: firebaseUser.uid,
-        email: firebaseUser.email ?? '',
-        displayName: firebaseUser.displayName ?? 'Kullanıcı',
-        photoURL: firebaseUser.photoURL,
-        role: UserRole.user,
-        createdAt: DateTime.now(),
-      );
-      await docRef.set(newUser.toFirestore());
-      return newUser;
+      return _createUserDocument(firebaseUser);
     }
-
     return AppUser.fromFirestore(doc.data()!, doc.id);
+  }
+
+  Future<AppUser> _createUserDocument(
+    User firebaseUser, {
+    String? displayName,
+  }) async {
+    final newUser = AppUser(
+      uid: firebaseUser.uid,
+      email: firebaseUser.email ?? '',
+      displayName: displayName ??
+          firebaseUser.displayName ??
+          firebaseUser.email?.split('@').first ??
+          'Kullanıcı',
+      photoURL: firebaseUser.photoURL,
+      role: UserRole.user,
+      createdAt: DateTime.now(),
+    );
+    await _firestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .set(newUser.toFirestore());
+    return newUser;
   }
 }
