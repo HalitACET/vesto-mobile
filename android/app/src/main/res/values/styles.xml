@@ -15,4 +15,14 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+
+    <!-- Custom Theme for UCrop (Image Cropper) matching Vesto's aesthetic -->
+    <style name="Theme.Vesto.UCrop" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#0A0A0A</item>           <!-- Onyx -->
+        <item name="colorPrimaryDark">#0A0A0A</item>
+        <item name="colorAccent">#0A0A0A</item>
+        <item name="android:windowBackground">#F5F5F5</item> <!-- Pearl -->
+        <item name="android:textColorPrimary">#0A0A0A</item>
+        <item name="android:statusBarColor">#0A0A0A</item>
+    </style>
 </resources>

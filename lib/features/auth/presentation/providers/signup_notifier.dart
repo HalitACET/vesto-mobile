@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:mobile/features/auth/data/repositories/auth_repository.dart';
@@ -16,11 +15,12 @@ class SignupNotifier extends _$SignupNotifier {
     required String displayName,
   }) async {
     state = const AsyncLoading();
-    final result = await ref.read(authRepositoryProvider).signUpWithEmailPassword(
-          email: email,
-          password: password,
-          displayName: displayName,
-        );
+    final result =
+        await ref.read(authRepositoryProvider).signUpWithEmailPassword(
+              email: email,
+              password: password,
+              displayName: displayName,
+            );
     state = result.when(
       ok: (_) => const AsyncData(null),
       err: (f) => AsyncError(f, StackTrace.current),

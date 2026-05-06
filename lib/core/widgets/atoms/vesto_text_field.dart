@@ -24,6 +24,7 @@ class VestoTextField extends StatefulWidget {
     this.onSubmitted,
     this.autofillHints,
     this.inputFormatters,
+    this.maxLines = 1,
   });
 
   final TextEditingController? controller;
@@ -40,6 +41,7 @@ class VestoTextField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final Iterable<String>? autofillHints;
   final List<TextInputFormatter>? inputFormatters;
+  final int? maxLines;
 
   @override
   State<VestoTextField> createState() => _VestoTextFieldState();
@@ -104,6 +106,7 @@ class _VestoTextFieldState extends State<VestoTextField> {
             onSubmitted: widget.onSubmitted,
             autofillHints: widget.autofillHints,
             inputFormatters: widget.inputFormatters,
+            maxLines: widget.maxLines,
             style: AppTypography.bodyMedium.copyWith(
               color: widget.enabled
                   ? (isDark ? AppColors.pearl : AppColors.onyx)

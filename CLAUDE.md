@@ -280,24 +280,85 @@ Versiyon olarak Flutter 3.x ile uyumlu en güncel **stable** versiyonları kulla
 
 ---
 
+## 📊 İlerleme Özeti
+
+- Mobil: 5/14 hafta tamamlandı (%36)
+- Web: 8/14 hafta tamamlandı (%57)
+- Toplam: ~%46
+
+---
+
 ## 📅 14 Haftalık Yol Haritası
 
-| Hafta | Faz | İş Paketi |
-|---|---|---|
-| 1 | 🏗️ Planlama | Mimari Kurulum |
-| 2 | 🎨 Tasarım | Design System |
-| 3 | 🔐 Altyapı | Auth Akışı (onboarding, login, profil wizard) |
-| 4 | 📸 Veri | Kıyafet Ekleme (kamera + galeri + upload) |
-| 5 | 👗 Veri | Gardırop Görünümü |
-| 6 | 🧠 AI | AI Analiz UX |
-| 7 | 🌤️ Akıllı | Hava + Öneri Modülü |
-| 8 | 🖱️ İnteraktif | Mobil Kombin Editörü |
-| 9 | 💬 Sosyal | Forum + Feed |
-| 10 | 👔 Sosyal | Topluluk Stilist Önerisi |
-| 11 | 👤 Sosyal | Profil + Takip |
-| 12 | 🔔 Etkileşim | Bildirimler (FCM) |
-| 13 | 🚀 Polish | Performans + Animasyon |
-| 14 | 🏁 Final | Test + Yayın |
+| Hafta | Faz | İş Paketi | Durum |
+|---|---|---|---|
+| 1 | 🏗️ Planlama | Mimari Kurulum | ✅ |
+| 2 | 🎨 Tasarım | Design System | ✅ |
+| 3 | 🔐 Altyapı | Auth Akışı (onboarding, login, profil wizard) | ✅ |
+| 4 | 📸 Veri | Kıyafet Ekleme (kamera + galeri + upload) | ✅ |
+| 5 | 👗 Veri | Gardırop Görünümü | ✅ |
+| 6 | 🧠 AI | AI Analiz, Cloud Functions, Vision API | 🚧 |
+| 7 | 🌤️ Akıllı | Hava + Öneri Modülü | ⏳ |
+| 8 | 🖱️ İnteraktif | Mobil Kombin Editörü | ⏳ |
+| 9 | 💬 Sosyal | Forum + Feed | ⏳ |
+| 10 | 👔 Sosyal | Topluluk Stilist Önerisi | ⏳ |
+| 11 | 👤 Sosyal | Profil + Takip | ⏳ |
+| 12 | 🔔 Etkileşim | Bildirimler (FCM) | ⏳ |
+| 13 | 🚀 Polish | Performans + Animasyon | ⏳ |
+| 14 | 🏁 Final | Test + Yayın | ⏳ |
+
+---
+
+## ✅ Tamamlanan İşler (Hafta Özeti)
+
+**Hafta 4 — Kıyafet Ekleme Akışı**
+- `lib/features/wardrobe/` feature klasörü kuruldu
+- `WardrobeItem` modeli (mobile schema, web ile uyumlu, `adminReview` nullable)
+- `WardrobeRepository` (CRUD + Storage paths + pagination + filter)
+- `ImageService` (compression: 1920x1920 q85 + thumbnail 200x200 q80, `keepExif: false`)
+- `UploadService` (Cloud Storage upload + progress tracking)
+- `PermissionService` + `PermissionDeniedView`
+- `AddItemNotifier` (Riverpod `AutoDispose AsyncNotifier`)
+- 3-step wizard: `PhotoCaptureStep` + `PhotoCropStep` + `ItemDetailsStep`
+- Optimistic UI Pattern: Save → Firestore doc anında oluşturulur (status: 'uploading') → SnackBar → Home'a yönlendirme → background image upload → Firestore update (status: 'ready')
+- Storage security rules deploy edildi (per-user, 5MB, image/* only)
+- Bug fix log: UCropActivity AndroidManifest entry, ItemDetailsStep beyaz ekran (force unwrap → null safety + AutoDispose)
+
+**Hafta 5 — Gardırop Görünümü**
+- `WardrobeScreen` (filter + search + view mode toggle + pull-to-refresh)
+- `ItemDetailScreen` (Hero animation, manuel `_timeAgo` helper, `FutureBuilder` pattern)
+- 8 yeni widget: `WardrobeItemCard`, `WardrobeFilterBar`, `WardrobeSearchBar` (borderless), `WardrobeViewToggle`, `WardrobeEmptyState`, `WardrobeSkeletonCard`, `WardrobeGrid`, `WardrobeList`
+- Long-press Action Sheet (Detay/Arşivle/Sil) + AlertDialog confirm
+- `cached_network_image` + `shimmer` paketleri
+- `MainShell` widget + `ShellRoute` (bottom nav iskeleti)
+- Bottom nav 2 tab: Gardırop + Profil (Hafta 7+'da Bugün, Outfits, Forum eklenecek)
+- `ProfileScreen` (minimal — logout + "Yakında" placeholder'lar)
+- `VestoBottomNav` molecular component (`VestoBottomNavItem` ile)
+- Firestore composite index: `wardrobeItems` (`userId` + `isArchived` + `createdAt`) deploy edildi
+- UI Polish: Search bar borderless (Vogue pattern), chip optical centering (`height: 1.0`)
+
+---
+
+## 🏛️ Mimari Kararlar (Güncel)
+
+- **Optimistic UI Pattern:** Save eyleminde Firestore doc önce oluşturuluyor, kullanıcı anında yönlendiriliyor, image upload background'da yapılıyor. Lüks moda dergisi UX hissini koruyor. `notifier.reset()` çağrılMAZ — Riverpod `AutoDispose` otomatik temizler.
+- **Sealed Class Re-export Pattern:** `wardrobe_exceptions.dart` dosyası `failure.dart`'taki sealed class failures'ı re-export eder (Dart sealed class kısıtlaması). Yeni `Failure` tipleri sadece `failure.dart`'a eklenir.
+- **Client-side Image Compression:** 1920x1920 max q85 (~500KB) original + 200x200 q80 (~30KB) thumbnail. EXIF stripping (`keepExif: false`) ile GPS privacy korundu. Thumbnail Hafta 6'da Cloud Function'a taşınacak (`TODO(Hafta 6)` notu kodda mevcut).
+- **Riverpod AutoDispose:** Form notifier'larında `@riverpod` `AutoDispose` pattern kullanılır. Manuel `reset()` çağrılmaz — sayfa kapanınca framework otomatik temizler. Manuel reset glitch'e sebep olur.
+- **Client-side Filter (Hafta 5 pragmatik tercih):** 200-300 kıyafet seviyesinde optimal. 1000+ kıyafet için ileride server-side filter veya Algolia'ya geçilebilir. `filteredWardrobeItems` computed provider belleği filtreler.
+- **ShellRoute + Bottom Nav Pattern:** Auth flow ve modal akışlar (AddItem, ItemDetail) ShellRoute DIŞINDA (full-screen). Sadece tab'lı ekranlar (Wardrobe, Profile) ShellRoute içinde, bottom nav görünür. `MainShell` location'a göre FAB visibility'sini de yönetir.
+- **Search Bar Pattern (Vogue/NYT):** Borderless underline-only. Sadece bottom border, transparent background. Material default border + `focusedBorder` + `enabledBorder` üçü de `InputBorder.none` olmalı (yaygın hata).
+- **Chip Optical Centering:** Inter font'un default line-height container'a sığmıyor. Çözüm: `height: 40` (fixed) + `alignment: Alignment.center` + TextStyle'da `height: 1.0`. Padding hack'i değil, doğru pattern.
+
+---
+
+## ⚙️ Bilinen Konfigürasyon Notları
+
+- `image_cropper` paketi kullanırken `AndroidManifest.xml`'e `UCropActivity` tanımı manuel eklenmeli. Vesto temasıyla custom `styles.xml` entry var (`Theme.Vesto.UCrop`).
+- Firebase Storage rules `firebase/rules/storage.rules`. Default alias: `vesto-ai-a7ad6`. Region: `europe-west1` (Firestore ile aynı, cross-region fee yok).
+- Firestore composite indexes `firebase/indexes/firestore.indexes.json` dosyasında. Yeni multi-field query (where + where + orderBy) ekleyince composite index gerekecek. Firebase hata mesajındaki magic link ile otomatik oluşturulabilir, sonra dosyaya eklenmeli.
+- `keepExif: false` image compression sırasında her zaman uygulanmalı (GPS privacy).
+- Yeni paket eklerken README'deki Android-specific setup (manifest entries, theme entries) kontrol et.
 
 ---
 

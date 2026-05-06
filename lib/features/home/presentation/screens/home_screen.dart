@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
@@ -40,9 +41,16 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/wardrobe/add'),
+        backgroundColor: AppColors.onyx,
+        foregroundColor: AppColors.pearl,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
+
 
 class _HomeContent extends StatelessWidget {
   const _HomeContent({required this.displayName});

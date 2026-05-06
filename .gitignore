@@ -25,3 +25,7 @@ Thumbs.db
 
 # Fonts (büyük dosyalar — CDN veya asset pipeline üzerinden yönet)
 # assets/fonts/*.ttf
+
+# Build artifacts (eklendi 2026-05)
+custom_lint.log
+android/.kotlin/

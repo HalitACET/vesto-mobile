@@ -29,8 +29,10 @@ class VestoChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 200),
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: bg,
           borderRadius: radius.fullBorderRadius,
@@ -38,7 +40,12 @@ class VestoChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: AppTypography.labelMedium.copyWith(color: textColor),
+          textAlign: TextAlign.center,
+          style: AppTypography.labelMedium.copyWith(
+            color: textColor,
+            height: 1.0,
+            letterSpacing: 0.8,
+          ),
         ),
       ),
     );

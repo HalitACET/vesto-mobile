@@ -13,7 +13,11 @@ import 'package:mobile/features/auth/presentation/screens/onboarding_screen.dart
 import 'package:mobile/features/auth/presentation/screens/profile_setup_screen.dart';
 import 'package:mobile/features/auth/presentation/screens/signup_screen.dart';
 import 'package:mobile/features/auth/presentation/screens/splash_screen.dart';
-import 'package:mobile/features/home/presentation/screens/home_screen.dart';
+import 'package:mobile/app/main_shell.dart';
+import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
+import 'package:mobile/features/wardrobe/presentation/screens/add_item/add_item_screen.dart' as mobile_add_item;
+import 'package:mobile/features/wardrobe/presentation/screens/item_detail_screen.dart';
+import 'package:mobile/features/wardrobe/presentation/screens/wardrobe_screen.dart';
 
 part 'router.g.dart';
 
@@ -24,8 +28,11 @@ abstract class AppRoutes {
   static const signup = '/signup';
   static const forgotPassword = '/forgot-password';
   static const profileSetup = '/profile-setup';
-  static const home = '/home';
+  static const wardrobe = '/wardrobe';
+  static const profile = '/profile';
   static const devShowcase = '/dev/showcase';
+  static const wardrobeAdd = '/wardrobe/add';
+  static const wardrobeItemDetail = '/wardrobe/item/:itemId';
 }
 
 const _authRoutes = {
@@ -69,7 +76,7 @@ GoRouter appRouter(Ref ref) {
       if (_authRoutes.contains(location) || location == AppRoutes.splash) {
         final user = ref.read(currentUserProvider).valueOrNull;
         final profileComplete = user?.isProfileComplete ?? true;
-        return profileComplete ? AppRoutes.home : AppRoutes.profileSetup;
+        return profileComplete ? AppRoutes.wardrobe : AppRoutes.profileSetup;
       }
 
       return null;
@@ -99,9 +106,28 @@ GoRouter appRouter(Ref ref) {
         path: AppRoutes.profileSetup,
         builder: (context, state) => const ProfileSetupScreen(),
       ),
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.wardrobe,
+            builder: (context, state) => const WardrobeScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
+      ),
       GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+        path: AppRoutes.wardrobeAdd,
+        builder: (context, state) => const mobile_add_item.AddItemScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.wardrobeItemDetail,
+        builder: (context, state) => ItemDetailScreen(
+          itemId: state.pathParameters['itemId']!,
+        ),
       ),
       if (kDebugMode)
         GoRoute(

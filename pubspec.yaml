@@ -33,6 +33,14 @@ dependencies:
   shared_preferences: ^2.3.2
   geolocator: ^13.0.2
 
+  # Hafta 4 — Kıyafet Ekleme
+  image_picker: ^1.1.2
+  image_cropper: ^9.0.0
+  flutter_image_compress: ^2.3.0
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.4
+  uuid: ^4.5.1
+
   # Utils
   intl: ^0.19.0
   equatable: ^2.0.5

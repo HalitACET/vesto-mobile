@@ -38,7 +38,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         }
       }
       if (next.isCompleted) {
-        context.go(AppRoutes.home);
+        context.go(AppRoutes.wardrobe);
       }
     });
 
