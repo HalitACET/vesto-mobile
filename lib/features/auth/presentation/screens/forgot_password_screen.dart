@@ -42,7 +42,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Future<void> _send() async {
     if (!_validate()) return;
     await ref
-        .read(forgotPasswordNotifierProvider.notifier)
+        .read(forgotPasswordProvider.notifier)
         .sendResetEmail(_emailController.text);
   }
 
@@ -50,7 +50,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
 
-    ref.listen(forgotPasswordNotifierProvider, (prev, next) {
+    ref.listen(forgotPasswordProvider, (prev, next) {
       if (next.hasError) {
         final failure = next.error;
         final message = failure is AuthFailure
@@ -69,7 +69,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       }
     });
 
-    final isLoading = ref.watch(forgotPasswordNotifierProvider).isLoading;
+    final isLoading = ref.watch(forgotPasswordProvider).isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.white,

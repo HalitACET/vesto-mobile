@@ -18,6 +18,8 @@ import 'package:mobile/features/profile/presentation/screens/profile_screen.dart
 import 'package:mobile/features/wardrobe/presentation/screens/add_item/add_item_screen.dart' as mobile_add_item;
 import 'package:mobile/features/wardrobe/presentation/screens/item_detail_screen.dart';
 import 'package:mobile/features/wardrobe/presentation/screens/wardrobe_screen.dart';
+import 'package:mobile/features/outfits/presentation/screens/outfits_screen.dart';
+import 'package:mobile/features/today/presentation/screens/today_screen.dart';
 
 part 'router.g.dart';
 
@@ -29,7 +31,9 @@ abstract class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const profileSetup = '/profile-setup';
   static const wardrobe = '/wardrobe';
+  static const outfits = '/outfits';
   static const profile = '/profile';
+  static const today = '/today';
   static const devShowcase = '/dev/showcase';
   static const wardrobeAdd = '/wardrobe/add';
   static const wardrobeItemDetail = '/wardrobe/item/:itemId';
@@ -61,8 +65,8 @@ GoRouter appRouter(Ref ref) {
       final authLoading = authState.isLoading || onboardingState.isLoading;
       if (authLoading) return location == AppRoutes.splash ? null : AppRoutes.splash;
 
-      final hasSeen = onboardingState.valueOrNull ?? false;
-      final isAuthenticated = authState.valueOrNull != null;
+      final hasSeen = onboardingState.value ?? false;
+      final isAuthenticated = authState.value != null;
 
       if (!hasSeen && location != AppRoutes.onboarding) {
         return AppRoutes.onboarding;
@@ -74,9 +78,9 @@ GoRouter appRouter(Ref ref) {
       }
 
       if (_authRoutes.contains(location) || location == AppRoutes.splash) {
-        final user = ref.read(currentUserProvider).valueOrNull;
+        final user = ref.read(currentUserProvider).value;
         final profileComplete = user?.isProfileComplete ?? true;
-        return profileComplete ? AppRoutes.wardrobe : AppRoutes.profileSetup;
+        return profileComplete ? AppRoutes.today : AppRoutes.profileSetup;
       }
 
       return null;
@@ -110,8 +114,16 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(
+            path: AppRoutes.today,
+            builder: (context, state) => const TodayScreen(),
+          ),
+          GoRoute(
             path: AppRoutes.wardrobe,
             builder: (context, state) => const WardrobeScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.outfits,
+            builder: (context, state) => const OutfitsScreen(),
           ),
           GoRoute(
             path: AppRoutes.profile,

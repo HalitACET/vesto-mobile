@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
 import 'package:mobile/app/theme/theme_extensions.dart';
+import 'package:mobile/features/wardrobe/data/models/ai_analysis.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
 
 /// Tek bir kıyafet kartı — grid ve list modu destekler.
@@ -20,12 +21,14 @@ class WardrobeItemCard extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     this.isListMode = false,
+    this.isSuitableForToday = false,
   });
 
   final WardrobeItem item;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final bool isListMode;
+  final bool isSuitableForToday;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,9 @@ class WardrobeItemCard extends StatelessWidget {
             ),
           ],
         ),
-        child: isListMode ? _ListLayout(item: item) : _GridLayout(item: item),
+        child: isListMode 
+            ? _ListLayout(item: item, isSuitable: isSuitableForToday) 
+            : _GridLayout(item: item, isSuitable: isSuitableForToday),
       ),
     );
   }
@@ -56,8 +61,9 @@ class WardrobeItemCard extends StatelessWidget {
 // ── Grid Layout ───────────────────────────────────────────────────────────────
 
 class _GridLayout extends StatelessWidget {
-  const _GridLayout({required this.item});
+  const _GridLayout({required this.item, required this.isSuitable});
   final WardrobeItem item;
+  final bool isSuitable;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +84,18 @@ class _GridLayout extends StatelessWidget {
               children: [
                 _ThumbnailImage(item: item),
                 _UploadOverlay(status: item.uploadStatus),
+                if (item.aiAnalysis != null)
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: _ColorDots(colors: item.aiAnalysis!.dominantColors),
+                  ),
+                if (isSuitable)
+                  const Positioned(
+                    top: 6,
+                    right: 6,
+                    child: _SuitableBadge(),
+                  ),
               ],
             ),
           ),
@@ -130,8 +148,9 @@ class _GridLayout extends StatelessWidget {
 // ── List Layout ───────────────────────────────────────────────────────────────
 
 class _ListLayout extends StatelessWidget {
-  const _ListLayout({required this.item});
+  const _ListLayout({required this.item, required this.isSuitable});
   final WardrobeItem item;
+  final bool isSuitable;
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +174,22 @@ class _ListLayout extends StatelessWidget {
                 children: [
                   _ThumbnailImage(item: item),
                   _UploadOverlay(status: item.uploadStatus),
+                  if (item.aiAnalysis != null)
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: _ColorDots(
+                        colors: item.aiAnalysis!.dominantColors,
+                        dotSize: 6,
+                        spacing: 2,
+                      ),
+                    ),
+                  if (isSuitable)
+                    const Positioned(
+                      top: 4,
+                      left: 4,
+                      child: _SuitableBadge(isSmall: true),
+                    ),
                 ],
               ),
             ),
@@ -295,6 +330,104 @@ class _UploadOverlay extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── AI Color Dots ─────────────────────────────────────────────────────────────
+
+class _ColorDots extends StatelessWidget {
+  const _ColorDots({
+    required this.colors,
+    this.dotSize = 8,
+    this.spacing = 3,
+  });
+
+  final List<DominantColor> colors;
+  final double dotSize;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    // En yüksek yüzdeli 3 renk
+    final displayColors = colors.take(3).toList();
+    if (displayColors.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: displayColors.map<Widget>((c) {
+        final color = _parseHex(c.hex);
+        return Container(
+          margin: EdgeInsets.only(left: spacing),
+          width: dotSize,
+          height: dotSize,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.onyxWithOpacity(0.1),
+              width: 0.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Color _parseHex(String hex) {
+    try {
+      return Color(int.parse(hex.replaceFirst('#', 'FF'), radix: 16));
+    } catch (_) {
+      return Colors.transparent;
+    }
+  }
+}
+
+class _SuitableBadge extends StatelessWidget {
+  final bool isSmall;
+
+  const _SuitableBadge({this.isSmall = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: isSmall ? 4 : 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF4CAF50), // Nature Green
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.wb_sunny, size: isSmall ? 8 : 10, color: AppColors.white),
+          if (!isSmall) ...[
+            const SizedBox(width: 4),
+            const Text(
+              'BUGÜN',
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

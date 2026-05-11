@@ -5,9 +5,9 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
-import 'package:mobile/core/errors/failure.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
-import 'package:mobile/features/wardrobe/data/repositories/wardrobe_repository.dart';
+import 'package:mobile/features/wardrobe/presentation/providers/wardrobe_providers.dart';
+import 'package:mobile/features/wardrobe/presentation/widgets/ai_analysis_section.dart';
 
 /// Kıyafet detay ekranı — read-only (Hafta 5).
 /// Hero animasyonu ile tam ekran fotoğraf geçişi + bilgi kartı.
@@ -18,25 +18,17 @@ class ItemDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final itemAsync = ref.watch(wardrobeItemStreamProvider(itemId));
+
     return Scaffold(
       backgroundColor: AppColors.pearl,
-      body: FutureBuilder<(WardrobeItem?, Failure?)>(
-        future: ref.read(wardrobeRepositoryProvider).getItem(itemId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const _LoadingView();
-          }
-
-          final (item, failure) = snapshot.data ?? (null, null);
-
-          if (failure != null || item == null) {
-            return _ErrorView(
-              message: failure?.message ?? 'Kıyafet bulunamadı',
-            );
-          }
-
+      body: itemAsync.when(
+        data: (item) {
+          if (item == null) return const _ErrorView(message: 'Kıyafet bulunamadı');
           return _DetailView(item: item);
         },
+        error: (e, st) => _ErrorView(message: 'Hata: ${e.toString()}'),
+        loading: () => const _LoadingView(),
       ),
     );
   }
@@ -127,6 +119,23 @@ class _DetailView extends StatelessWidget {
         // Bilgi kartı
         SliverToBoxAdapter(
           child: _InfoCard(item: item),
+        ),
+
+        // AI Analiz Bölümü
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: AiAnalysisSection(
+              analysis: item.aiAnalysis,
+              isAnalyzing: item.uploadStatus == UploadStatus.ready &&
+                  item.aiAnalysis == null,
+            ),
+          ),
+        ),
+
+        // Boşluk
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 32),
         ),
       ],
     );

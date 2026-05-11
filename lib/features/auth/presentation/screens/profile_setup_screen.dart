@@ -28,7 +28,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
 
-    ref.listen(profileSetupNotifierProvider, (_, next) {
+    ref.listen(profileSetupProvider, (_, next) {
       if (next.failure != null) {
         final msg = next.failure is AuthFailure
             ? (next.failure as AuthFailure).toUserMessage()
@@ -42,8 +42,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       }
     });
 
-    final state = ref.watch(profileSetupNotifierProvider);
-    final notifier = ref.read(profileSetupNotifierProvider.notifier);
+    final state = ref.watch(profileSetupProvider);
+    final notifier = ref.read(profileSetupProvider.notifier);
     final isFirstStep = state.currentStep == ProfileSetupStep.basicInfo;
 
     return Scaffold(

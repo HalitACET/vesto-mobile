@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:mobile/core/errors/failure.dart';
@@ -31,6 +30,46 @@ class WardrobeRepository {
   // ── Kimlik doğrulama yardımcısı ───────────────────────────────────────────
 
   String? get _currentUserId => _auth.currentUser?.uid;
+
+  // Belirli ID'lere sahip item'ları getir
+  Future<List<WardrobeItem>> getItemsByIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+    try {
+      print('DEBUG: [Firestore] Querying items for IDs: $ids');
+      // documentId index'ini kullanarak hızlıca getir
+      final queryTask = _firestore
+          .collection(_collection)
+          .where(FieldPath.documentId, whereIn: ids)
+          .get();
+      
+      final snapshots = await queryTask.timeout(const Duration(seconds: 5));
+      
+      print('DEBUG: [Firestore] Found ${snapshots.docs.length} matches for requested ${ids.length} IDs');
+      
+      final results = snapshots.docs.map((doc) => WardrobeItem.fromFirestore(doc)).toList();
+      return results;
+    } catch (e) {
+      print('DEBUG: [Firestore ERROR] getItemsByIds failed: $e');
+      return [];
+    }
+  }
+
+  // Belirli item'ların kullanım sayısını artır
+  Future<void> markItemsAsWorn(List<String> ids) async {
+    if (ids.isEmpty) return;
+    try {
+      final batch = _firestore.batch();
+      for (final id in ids) {
+        batch.update(_firestore.collection(_collection).doc(id), {
+          'usageCount': FieldValue.increment(1),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+    } catch (e) {
+      print('DEBUG: [Firestore ERROR] markItemsAsWorn failed: $e');
+    }
+  }
 
   // ── Yeni item document oluştur (status: uploading) ────────────────────────
 
@@ -155,6 +194,15 @@ class WardrobeRepository {
     } catch (_) {
       return (null, const WardrobeUnexpectedFailure());
     }
+  }
+
+  /// Tek bir item'ı real-time izle (Hafta 6 AI Analiz için kritik).
+  Stream<WardrobeItem?> watchItem(String itemId) {
+    return _firestore
+        .collection(_collection)
+        .doc(itemId)
+        .snapshots()
+        .map((doc) => doc.exists ? WardrobeItem.fromFirestore(doc) : null);
   }
 
   // ── Item arşivle (soft delete) ────────────────────────────────────────────

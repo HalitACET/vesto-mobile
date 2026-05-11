@@ -11,7 +11,7 @@ class ProfileScreen extends ConsumerWidget {
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider).valueOrNull;
+    final user = ref.watch(currentUserProvider).value;
     
     return Scaffold(
       backgroundColor: AppColors.pearl,
@@ -92,7 +92,7 @@ class ProfileScreen extends ConsumerWidget {
               // Logout
               VestoButton(
                 onPressed: () async {
-                  await ref.read(authNotifierProvider.notifier).signOut();
+                  await ref.read(authProvider.notifier).signOut();
                 },
                 variant: VestoButtonVariant.secondary,
                 label: 'Çıkış Yap',

@@ -61,21 +61,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _login() async {
     if (!_validate()) return;
-    await ref.read(loginNotifierProvider.notifier).login(
+    await ref.read(loginProvider.notifier).login(
           _emailController.text,
           _passwordController.text,
         );
   }
 
   Future<void> _loginWithGoogle() async {
-    await ref.read(loginNotifierProvider.notifier).signInWithGoogle();
+    await ref.read(loginProvider.notifier).signInWithGoogle();
   }
 
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
 
-    ref.listen(loginNotifierProvider, (_, next) {
+    ref.listen(loginProvider, (_, next) {
       if (next.hasError) {
         final failure = next.error;
         final message = failure is AuthFailure
@@ -91,7 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-    final isLoading = ref.watch(loginNotifierProvider).isLoading;
+    final isLoading = ref.watch(loginProvider).isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.white,

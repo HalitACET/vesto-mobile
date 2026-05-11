@@ -12,14 +12,10 @@ import 'package:mobile/features/auth/data/models/app_user.dart';
 part 'auth_repository.g.dart';
 
 @riverpod
-GoogleSignIn googleSignIn(Ref ref) => GoogleSignIn();
-
-@riverpod
 AuthRepository authRepository(Ref ref) {
   return AuthRepository(
     auth: ref.watch(firebaseAuthProvider),
     firestore: ref.watch(firestoreProvider),
-    googleSignIn: ref.watch(googleSignInProvider),
   );
 }
 
@@ -27,14 +23,11 @@ class AuthRepository {
   const AuthRepository({
     required FirebaseAuth auth,
     required FirebaseFirestore firestore,
-    required GoogleSignIn googleSignIn,
   })  : _auth = auth,
-        _firestore = firestore,
-        _googleSignIn = googleSignIn;
+        _firestore = firestore;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
-  final GoogleSignIn _googleSignIn;
 
   // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -93,18 +86,20 @@ class AuthRepository {
 
   Future<Result<AppUser, AuthFailure>> signInWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return const Err(CancelledAuthFailure());
-
-      final googleAuth = await googleUser.authentication;
+      final googleUser = await GoogleSignIn.instance.authenticate();
+      final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       final userCredential = await _auth.signInWithCredential(credential);
       final appUser = await _ensureUserDocument(userCredential.user!);
       return Ok(appUser);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return const Err(CancelledAuthFailure());
+      }
+      return const Err(UnknownAuthFailure());
     } on FirebaseAuthException catch (e) {
       return Err(mapFirebaseAuthCode(e.code, e.message));
     } catch (_) {
@@ -138,7 +133,7 @@ class AuthRepository {
   Future<void> signOut() async {
     await Future.wait([
       _auth.signOut(),
-      _googleSignIn.signOut(),
+      GoogleSignIn.instance.signOut(),
     ]);
   }
 

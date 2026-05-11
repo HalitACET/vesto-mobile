@@ -17,7 +17,7 @@ Stream<User?> authStateChanges(Ref ref) {
 /// Firestore'dan AppUser stream — UI ve iş mantığı için kullanılır.
 @riverpod
 Stream<AppUser?> currentUser(Ref ref) {
-  final uid = ref.watch(authStateChangesProvider).valueOrNull?.uid;
+  final uid = ref.watch(authStateChangesProvider).value?.uid;
   if (uid == null) return const Stream.empty();
   return ref.watch(authRepositoryProvider).watchUser(uid);
 }

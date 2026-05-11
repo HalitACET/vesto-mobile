@@ -14,8 +14,12 @@ class MainShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     
     int currentIndex = 0;
-    if (location.startsWith('/profile')) {
+    if (location.startsWith('/wardrobe')) {
       currentIndex = 1;
+    } else if (location.startsWith('/outfits')) {
+      currentIndex = 2;
+    } else if (location.startsWith('/profile')) {
+      currentIndex = 3;
     }
     
     return Scaffold(
@@ -24,8 +28,16 @@ class MainShell extends StatelessWidget {
         selectedIndex: currentIndex,
         items: const [
           VestoBottomNavItem(
+            icon: Icons.wb_sunny_outlined,
+            label: 'Bugün',
+          ),
+          VestoBottomNavItem(
             icon: Icons.checkroom_outlined,
             label: 'Gardırop',
+          ),
+          VestoBottomNavItem(
+            icon: Icons.style_outlined,
+            label: 'Outfitler',
           ),
           VestoBottomNavItem(
             icon: Icons.person_outline,
@@ -35,9 +47,15 @@ class MainShell extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              context.go('/wardrobe');
+              context.go('/today');
               break;
             case 1:
+              context.go('/wardrobe');
+              break;
+            case 2:
+              context.go('/outfits');
+              break;
+            case 3:
               context.go('/profile');
               break;
           }

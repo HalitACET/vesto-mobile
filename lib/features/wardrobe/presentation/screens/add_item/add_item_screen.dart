@@ -33,7 +33,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     super.initState();
     // Sayfa açıldığında doğrudan kaynağı sor ve eski state'i temizle
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(addItemNotifierProvider.notifier).reset();
+      ref.read(addItemProvider.notifier).reset();
       
       final source = await PhotoSourceSelector.show(context);
       if (mounted) {
@@ -49,7 +49,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     if (_isSaving) return;
     setState(() => _isSaving = true);
 
-    final notifier = ref.read(addItemNotifierProvider.notifier);
+    final notifier = ref.read(addItemProvider.notifier);
     final result = await notifier.save();
 
     if (!mounted) return;
@@ -77,7 +77,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   @override
   Widget build(BuildContext context) {
     // Tüm akış boyunca state'in auto-dispose olmasını engellemek için watch ediyoruz
-    ref.watch(addItemNotifierProvider);
+    ref.watch(addItemProvider);
 
     return Scaffold(
       appBar: _currentStep == 2 
@@ -90,7 +90,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               leading: IconButton(
                 icon: const Icon(Icons.close, color: AppColors.onyx),
                 onPressed: () {
-                  ref.read(addItemNotifierProvider.notifier).reset();
+                  ref.read(addItemProvider.notifier).reset();
                   Navigator.of(context).pop();
                 },
               ),
@@ -118,7 +118,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           sourceFile: _capturedFile!,
           onCropped: (file) {
             // Cropped fotoğrafı notifier'a kaydet
-            ref.read(addItemNotifierProvider.notifier).setCroppedPhoto(file);
+            ref.read(addItemProvider.notifier).setCroppedPhoto(file);
             setState(() {
               _currentStep = 2;
             });

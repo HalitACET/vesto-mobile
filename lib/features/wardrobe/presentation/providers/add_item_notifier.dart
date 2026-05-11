@@ -121,7 +121,7 @@ class AddItemNotifier extends _$AddItemNotifier {
       return const Err(FirestoreWriteFailure('Eksik bilgi girdiniz.'));
     }
 
-    final user = ref.read(currentUserProvider).valueOrNull;
+    final user = ref.read(currentUserProvider).value;
     if (user == null) {
       return const Err(UnauthenticatedFailure());
     }

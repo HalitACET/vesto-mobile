@@ -11,7 +11,7 @@ part 'wardrobe_providers.g.dart';
 
 @riverpod
 Stream<List<WardrobeItem>> userWardrobeItems(Ref ref) {
-  final uid = ref.watch(authStateChangesProvider).valueOrNull?.uid;
+  final uid = ref.watch(authStateChangesProvider).value?.uid;
   if (uid == null) return Stream.value([]);
   
   return ref.watch(wardrobeRepositoryProvider).watchUserItems(uid);
@@ -49,7 +49,7 @@ class WardrobeViewMode extends _$WardrobeViewMode {
 
 @riverpod
 List<WardrobeItem> filteredWardrobeItems(Ref ref) {
-  final allItems = ref.watch(userWardrobeItemsProvider).valueOrNull ?? [];
+  final allItems = ref.watch(userWardrobeItemsProvider).value ?? [];
   final filter = ref.watch(wardrobeFilterProvider);
   final search = ref.watch(wardrobeSearchProvider);
 
@@ -64,4 +64,9 @@ List<WardrobeItem> filteredWardrobeItems(Ref ref) {
     }
     return true;
   }).toList();
+}
+
+@riverpod
+Stream<WardrobeItem?> wardrobeItemStream(Ref ref, String itemId) {
+  return ref.watch(wardrobeRepositoryProvider).watchItem(itemId);
 }

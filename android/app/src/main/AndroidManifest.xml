@@ -4,9 +4,9 @@
     <!-- İnternet bağlantısı (Firebase + API çağrıları için zorunlu) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Hafta 7: Lokasyon izinleri (şimdilik hazır, aktif değil) -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
+    <!-- Hafta 7: Lokasyon izinleri (Aktif) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!-- Hafta 4: Kamera ve galeri izinleri -->
     <uses-permission android:name="android.permission.CAMERA" />

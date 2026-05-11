@@ -104,7 +104,7 @@ class ProfileSetupNotifier extends _$ProfileSetupNotifier {
   @override
   ProfileSetupState build() {
     // Yarım kalmış wizard'ı kaldığı adımdan devam ettir
-    final user = ref.watch(currentUserProvider).valueOrNull;
+    final user = ref.watch(currentUserProvider).value;
     return ProfileSetupState(
       displayName: user?.displayName,
       currentStep: _resumeStep(user?.lastCompletedStep),
@@ -176,7 +176,7 @@ class ProfileSetupNotifier extends _$ProfileSetupNotifier {
   Future<void> complete() async {
     state = state.copyWith(isSubmitting: true, clearFailure: true);
 
-    final currentUser = ref.read(currentUserProvider).valueOrNull;
+    final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) {
       state = state.copyWith(
         isSubmitting: false,

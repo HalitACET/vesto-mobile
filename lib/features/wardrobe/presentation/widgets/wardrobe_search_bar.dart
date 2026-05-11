@@ -49,8 +49,8 @@ class _WardrobeSearchBarState extends ConsumerState<WardrobeSearchBar> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 24), // More breathing room from edges
+      padding: const EdgeInsets.symmetric(vertical: 8), // More compact
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(

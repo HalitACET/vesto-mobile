@@ -63,8 +63,8 @@ class _ItemDetailsStepState extends ConsumerState<ItemDetailsStep> {
 
   Widget _buildContent(BuildContext context) {
     debugPrint('🔵 ItemDetailsStep build started');
-    final state = ref.watch(addItemNotifierProvider);
-    final notifier = ref.read(addItemNotifierProvider.notifier);
+    final state = ref.watch(addItemProvider);
+    final notifier = ref.read(addItemProvider.notifier);
     final spacing = context.spacing;
     final radius = context.radius;
 

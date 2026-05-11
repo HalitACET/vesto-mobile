@@ -70,7 +70,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   Future<void> _signup() async {
     if (!_validate()) return;
-    await ref.read(signupNotifierProvider.notifier).signup(
+    await ref.read(signupProvider.notifier).signup(
           email: _emailController.text,
           password: _passwordController.text,
           displayName: _nameController.text.trim(),
@@ -81,7 +81,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
 
-    ref.listen(signupNotifierProvider, (_, next) {
+    ref.listen(signupProvider, (_, next) {
       if (next.hasError) {
         final failure = next.error;
         final message = failure is AuthFailure
@@ -97,7 +97,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
     });
 
-    final isLoading = ref.watch(signupNotifierProvider).isLoading;
+    final isLoading = ref.watch(signupProvider).isLoading;
 
     return Scaffold(
       backgroundColor: AppColors.white,
