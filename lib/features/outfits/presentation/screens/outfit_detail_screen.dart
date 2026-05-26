@@ -6,6 +6,7 @@ import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/features/outfits/data/models/outfit.dart';
 import 'package:mobile/features/outfits/presentation/providers/outfit_providers.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
+import 'package:go_router/go_router.dart';
 
 class OutfitDetailScreen extends ConsumerWidget {
   final Outfit outfit;
@@ -100,22 +101,38 @@ class OutfitDetailScreen extends ConsumerWidget {
             // Actions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await ref.read(outfitRepositoryProvider).markAsWorn(outfit);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Harika görünüyorsun! Giyim kaydedildi.')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.onyx,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text('BUGÜN BUNU GİYDİM', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await ref.read(outfitRepositoryProvider).markAsWorn(outfit);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Harika görünüyorsun! Giyim kaydedildi.')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.onyx,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('BUGÜN BUNU GİYDİM', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/forum/share/${outfit.id}'),
+                    icon: const Icon(Icons.share_outlined),
+                    label: const Text('FORUM\'DA PAYLAŞ', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.onyx,
+                      side: const BorderSide(color: AppColors.onyx),
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ],
               ),
             ),
             

@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
+import 'package:mobile/features/wardrobe/data/repositories/wardrobe_repository.dart';
 import 'package:mobile/features/wardrobe/presentation/providers/wardrobe_providers.dart';
 import 'package:mobile/features/wardrobe/presentation/widgets/ai_analysis_section.dart';
 
@@ -36,12 +37,12 @@ class ItemDetailScreen extends ConsumerWidget {
 
 // ── Detail View ───────────────────────────────────────────────────────────────
 
-class _DetailView extends StatelessWidget {
+class _DetailView extends ConsumerWidget {
   const _DetailView({required this.item});
   final WardrobeItem item;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final imageUrl = item.imageUrl ?? item.thumbnailUrl;
 
     return CustomScrollView(
@@ -86,12 +87,12 @@ class _DetailView extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Shimmer.fromColors(
+                      placeholder: (_, _) => Shimmer.fromColors(
                         baseColor: AppColors.charcoal,
                         highlightColor: AppColors.graphite,
                         child: Container(color: AppColors.charcoal),
                       ),
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         color: AppColors.charcoal,
                         child: const Center(
                           child: Icon(
@@ -144,12 +145,12 @@ class _DetailView extends StatelessWidget {
 
 // ── Info Card ─────────────────────────────────────────────────────────────────
 
-class _InfoCard extends StatelessWidget {
+class _InfoCard extends ConsumerWidget {
   const _InfoCard({required this.item});
   final WardrobeItem item;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final createdAgo = _timeAgo(item.createdAt);
 
     return Container(
@@ -186,6 +187,36 @@ class _InfoCard extends StatelessWidget {
             _InfoRow(label: 'Notlar', value: item.notes!),
           _InfoRow(label: 'Eklenme', value: createdAgo),
           _InfoRow(label: 'Kullanım', value: '${item.usageCount} kez'),
+          
+          const SizedBox(height: 8),
+          const Divider(color: AppColors.mist, height: 1),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text(
+              'Herkese Açık',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.onyx,
+              ),
+            ),
+            subtitle: const Text(
+              'Bu kıyafeti profilinde herkese açık göster',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                color: AppColors.stone,
+              ),
+            ),
+            value: item.isPublic,
+            activeThumbColor: AppColors.onyx,
+            onChanged: (value) async {
+              await ref.read(wardrobeRepositoryProvider).toggleItemPublic(item.id, value);
+            },
+          ),
+          
           // Upload status badge
           if (item.uploadStatus != UploadStatus.ready) ...[
             const SizedBox(height: 8),

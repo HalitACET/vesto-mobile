@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:mobile/core/network/firebase_providers.dart';
@@ -17,9 +16,17 @@ Stream<User?> authStateChanges(Ref ref) {
 /// Firestore'dan AppUser stream — UI ve iş mantığı için kullanılır.
 @riverpod
 Stream<AppUser?> currentUser(Ref ref) {
-  final uid = ref.watch(authStateChangesProvider).value?.uid;
-  if (uid == null) return const Stream.empty();
-  return ref.watch(authRepositoryProvider).watchUser(uid);
+  final authState = ref.watch(authStateChangesProvider);
+  // Loading durumunda: henüz event gelmediyse boş bir stream değil,
+  // null user emit edip bekliyoruz — böylece UI loading state'inde kalır.
+  return authState.when(
+    loading: () => const Stream.empty(),
+    error: (error, stackTrace) => Stream.value(null),
+    data: (user) {
+      if (user == null) return Stream.value(null);
+      return ref.watch(authRepositoryProvider).watchUser(user.uid);
+    },
+  );
 }
 
 /// Genel auth aksiyonları (signOut). Login/Signup ayrı notifier'larda.

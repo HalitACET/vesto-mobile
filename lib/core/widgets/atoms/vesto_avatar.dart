@@ -53,8 +53,8 @@ class VestoAvatar extends StatelessWidget {
           width: d,
           height: d,
           fit: BoxFit.cover,
-          placeholder: (_, __) => _shimmer(d),
-          errorWidget: (_, __, ___) => _placeholder(d),
+          placeholder: (_, _) => _shimmer(d),
+          errorWidget: (_, _, _) => _placeholder(d),
         ),
       );
     }

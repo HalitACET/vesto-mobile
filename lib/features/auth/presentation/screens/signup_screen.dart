@@ -163,7 +163,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               // Şifre güçlü mü göstergesi
               ValueListenableBuilder(
                 valueListenable: _passwordController,
-                builder: (_, __, ___) => PasswordStrengthIndicator(
+                builder: (_, _, _) => PasswordStrengthIndicator(
                   password: _passwordController.text,
                 ),
               ),

@@ -19,9 +19,9 @@ extension OutfitItemsX on OutfitItems {
   bool get isEmpty => topId == null && bottomId == null && shoesId == null && accessoryId == null;
   
   List<String> get allItemIds => [
-    if (topId != null) topId!,
-    if (bottomId != null) bottomId!,
-    if (shoesId != null) shoesId!,
-    if (accessoryId != null) accessoryId!,
+    ?topId,
+    ?bottomId,
+    ?shoesId,
+    ?accessoryId,
   ];
 }

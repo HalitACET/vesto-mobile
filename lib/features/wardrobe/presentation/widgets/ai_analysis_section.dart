@@ -114,9 +114,9 @@ class _LoadingState extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ShimmerLine(width: 150),
+        const _ShimmerLine(width: 150),
         const SizedBox(height: 12),
-        _ShimmerLine(width: 100),
+        const _ShimmerLine(width: 100),
         const SizedBox(height: 12),
         Row(
           children: List.generate(

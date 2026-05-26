@@ -39,7 +39,7 @@ class WardrobeGrid extends ConsumerWidget {
           mainAxisSpacing: 10,
         ),
         itemCount: 6,
-        itemBuilder: (_, __) => const WardrobeSkeletonCard(isListMode: false),
+        itemBuilder: (_, _) => const WardrobeSkeletonCard(isListMode: false),
       );
     }
 
@@ -92,15 +92,15 @@ class WardrobeList extends ConsumerWidget {
       return ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: 6,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (_, __) => const WardrobeSkeletonCard(isListMode: true),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (_, _) => const WardrobeSkeletonCard(isListMode: true),
       );
     }
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (_, index) {
         final item = items[index];
         final isSuitable = _checkSuitability(item, rule);

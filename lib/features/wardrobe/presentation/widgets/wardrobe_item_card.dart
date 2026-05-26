@@ -84,6 +84,11 @@ class _GridLayout extends StatelessWidget {
               children: [
                 _ThumbnailImage(item: item),
                 _UploadOverlay(status: item.uploadStatus),
+                Positioned(
+                  top: 6,
+                  left: 6,
+                  child: _VisibilityBadge(isPublic: item.isPublic),
+                ),
                 if (item.aiAnalysis != null)
                   Positioned(
                     bottom: 6,
@@ -174,6 +179,11 @@ class _ListLayout extends StatelessWidget {
                 children: [
                   _ThumbnailImage(item: item),
                   _UploadOverlay(status: item.uploadStatus),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: _VisibilityBadge(isPublic: item.isPublic),
+                  ),
                   if (item.aiAnalysis != null)
                     Positioned(
                       bottom: 4,
@@ -268,12 +278,12 @@ class _ThumbnailImage extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: url,
       fit: BoxFit.cover,
-      placeholder: (_, __) => Shimmer.fromColors(
+      placeholder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.mist,
         highlightColor: AppColors.pearl,
         child: Container(color: AppColors.mist),
       ),
-      errorWidget: (_, __, ___) => Container(
+      errorWidget: (_, _, _) => Container(
         color: AppColors.pearl,
         child: const Center(
           child: Icon(Icons.broken_image_outlined, color: AppColors.stone, size: 24),
@@ -428,6 +438,27 @@ class _SuitableBadge extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _VisibilityBadge extends StatelessWidget {
+  const _VisibilityBadge({required this.isPublic});
+  final bool isPublic;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.onyxWithOpacity(0.6),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        isPublic ? Icons.public : Icons.lock_outline,
+        size: 10,
+        color: isPublic ? const Color(0xFFFFD700) : AppColors.white,
       ),
     );
   }

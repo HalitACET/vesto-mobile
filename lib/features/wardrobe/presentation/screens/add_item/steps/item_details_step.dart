@@ -32,6 +32,19 @@ class _ItemDetailsStepState extends ConsumerState<ItemDetailsStep> {
   final _notesController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final state = ref.read(addItemProvider);
+        if (state.brand != null) _brandController.text = state.brand!;
+        if (state.size != null) _sizeController.text = state.size!;
+        if (state.notes != null) _notesController.text = state.notes!;
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _brandController.dispose();
     _sizeController.dispose();
@@ -156,6 +169,95 @@ class _ItemDetailsStepState extends ConsumerState<ItemDetailsStep> {
                   ),
                   SizedBox(height: spacing.xl),
                 ],
+
+                // Görünürlük Section
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+                  child: Text('GÖRÜNÜRLÜK', style: AppTypography.labelMedium.copyWith(color: AppColors.stone)),
+                ),
+                SizedBox(height: spacing.md),
+                
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+                  child: Row(
+                    children: [
+                      // Gizli (Private)
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => notifier.setIsPublic(false),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.symmetric(vertical: spacing.md, horizontal: spacing.sm),
+                            decoration: BoxDecoration(
+                              color: !state.isPublic ? AppColors.onyx : AppColors.white,
+                              borderRadius: BorderRadius.circular(radius.md),
+                              border: Border.all(
+                                color: !state.isPublic ? AppColors.onyx : AppColors.mist,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.lock_outline,
+                                  size: 18,
+                                  color: !state.isPublic ? AppColors.white : AppColors.stone,
+                                ),
+                                SizedBox(width: spacing.xs),
+                                Text(
+                                  'Gizli',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: !state.isPublic ? AppColors.white : AppColors.onyx,
+                                    fontWeight: !state.isPublic ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: spacing.md),
+                      // Herkese Açık (Public)
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => notifier.setIsPublic(true),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.symmetric(vertical: spacing.md, horizontal: spacing.sm),
+                            decoration: BoxDecoration(
+                              color: state.isPublic ? AppColors.onyx : AppColors.white,
+                              borderRadius: BorderRadius.circular(radius.md),
+                              border: Border.all(
+                                color: state.isPublic ? AppColors.onyx : AppColors.mist,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.public,
+                                  size: 18,
+                                  color: state.isPublic ? AppColors.white : AppColors.stone,
+                                ),
+                                SizedBox(width: spacing.xs),
+                                Text(
+                                  'Herkese Açık',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: state.isPublic ? AppColors.white : AppColors.onyx,
+                                    fontWeight: state.isPublic ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: spacing.xl),
 
                 // Detaylar Section
                 Padding(

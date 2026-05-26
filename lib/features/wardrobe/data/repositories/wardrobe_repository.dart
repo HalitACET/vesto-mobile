@@ -205,6 +205,22 @@ class WardrobeRepository {
         .map((doc) => doc.exists ? WardrobeItem.fromFirestore(doc) : null);
   }
 
+  Stream<List<WardrobeItem>> watchUserPublicItems(String userId) {
+    return _firestore
+        .collection(_collection)
+        .where('userId', isEqualTo: userId)
+        .where('isArchived', isEqualTo: false)
+        .where('isPublic', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+          final items = snapshot.docs
+              .map((doc) => WardrobeItem.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
+              .toList();
+          items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return items;
+        });
+  }
+
   // ── Item arşivle (soft delete) ────────────────────────────────────────────
 
   Future<Failure?> archiveItem(String itemId) async {
@@ -221,6 +237,28 @@ class WardrobeRepository {
     } catch (_) {
       return const WardrobeUnexpectedFailure();
     }
+  }
+
+  // ── Visibility control ─────────────────────────────────────────────────────
+
+  // Tek kıyafet visibility toggle
+  Future<void> toggleItemPublic(String itemId, bool isPublic) async {
+    await _firestore.collection(_collection).doc(itemId).update({
+      'isPublic': isPublic,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Başkasının public kıyafetlerini getir
+  Stream<List<WardrobeItem>> watchPublicItems(String userId) {
+    return _firestore
+        .collection(_collection)
+        .where('userId', isEqualTo: userId)
+        .where('isPublic', isEqualTo: true)
+        .where('isArchived', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((doc) => WardrobeItem.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>)).toList());
   }
 
   // ── Storage upload reference ───────────────────────────────────────────────

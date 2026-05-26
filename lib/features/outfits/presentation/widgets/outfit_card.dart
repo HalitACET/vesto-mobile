@@ -87,7 +87,7 @@ class OutfitCard extends ConsumerWidget {
                       );
                     },
                     loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                    error: (_, __) => const Center(child: Icon(Icons.error)),
+                    error: (_, _) => const Center(child: Icon(Icons.error)),
                   ),
                   
                   // Favorite Heart

@@ -88,6 +88,7 @@ class WardrobeItem extends Equatable {
     required this.uploadStatus,
     this.imageUrl,
     this.thumbnailUrl,
+    this.bgRemovedUrl,
     this.aiAnalysis,
     this.brand,
     this.size,
@@ -95,13 +96,15 @@ class WardrobeItem extends Equatable {
     this.notes,
     this.isArchived = false,
     this.usageCount = 0,
+    this.isPublic = false,
     this.adminReview, // web tarafının yazdığı alan, mobile sadece okur
   });
 
   // ── Görsel ────────────────────────────────────────────────────────────────
-  final String? imageUrl;      // upload bitene kadar null
-  final String? thumbnailUrl;  // Cloud Function üretene kadar null (Hafta 6)
-  final String imagePath;      // storage path — silme işlemi için
+  final String? imageUrl;        // upload bitene kadar null
+  final String? thumbnailUrl;    // Cloud Function üretene kadar null (Hafta 6)
+  final String? bgRemovedUrl;    // Cloud Function tarafından yazılır (PNG, transparent BG)
+  final String imagePath;        // storage path — silme işlemi için
 
   // ── Kimlik ────────────────────────────────────────────────────────────────
   final String id;
@@ -127,6 +130,7 @@ class WardrobeItem extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool isArchived;
+  final bool isPublic;
   final UploadStatus uploadStatus;
   final int usageCount; // Hafta 8 outfit editöründe artar
 
@@ -151,6 +155,7 @@ class WardrobeItem extends Equatable {
       userId: data['userId'] as String? ?? '',
       imageUrl: data['imageUrl'] as String?,
       thumbnailUrl: data['thumbnailUrl'] as String?,
+      bgRemovedUrl: data['bgRemovedUrl'] as String?,
       imagePath: data['imagePath'] as String? ?? '',
       category:
           ItemCategory.fromString(data['category'] as String?) ??
@@ -174,6 +179,7 @@ class WardrobeItem extends Equatable {
           ? (data['updatedAt'] as Timestamp).toDate()
           : DateTime.now(),
       isArchived: data['isArchived'] as bool? ?? false,
+      isPublic: data['isPublic'] as bool? ?? false,
       uploadStatus:
           UploadStatus.fromString(data['uploadStatus'] as String?),
       usageCount: data['usageCount'] as int? ?? 0,
@@ -199,6 +205,7 @@ class WardrobeItem extends Equatable {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'isArchived': isArchived,
+        'isPublic': isPublic,
         'uploadStatus': uploadStatus.value,
         'usageCount': usageCount,
         // adminReview: mobile yazmaz
@@ -219,6 +226,7 @@ class WardrobeItem extends Equatable {
     String? userId,
     String? imageUrl,
     String? thumbnailUrl,
+    String? bgRemovedUrl,
     String? imagePath,
     ItemCategory? category,
     String? subcategory,
@@ -231,6 +239,7 @@ class WardrobeItem extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isArchived,
+    bool? isPublic,
     UploadStatus? uploadStatus,
     int? usageCount,
     Map<String, dynamic>? adminReview,
@@ -240,6 +249,7 @@ class WardrobeItem extends Equatable {
         userId: userId ?? this.userId,
         imageUrl: imageUrl ?? this.imageUrl,
         thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+        bgRemovedUrl: bgRemovedUrl ?? this.bgRemovedUrl,
         imagePath: imagePath ?? this.imagePath,
         category: category ?? this.category,
         subcategory: subcategory ?? this.subcategory,
@@ -252,6 +262,7 @@ class WardrobeItem extends Equatable {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         isArchived: isArchived ?? this.isArchived,
+        isPublic: isPublic ?? this.isPublic,
         uploadStatus: uploadStatus ?? this.uploadStatus,
         usageCount: usageCount ?? this.usageCount,
         adminReview: adminReview ?? this.adminReview,
@@ -263,6 +274,7 @@ class WardrobeItem extends Equatable {
         userId,
         imageUrl,
         thumbnailUrl,
+        bgRemovedUrl,
         imagePath,
         category,
         subcategory,
@@ -275,6 +287,7 @@ class WardrobeItem extends Equatable {
         createdAt,
         updatedAt,
         isArchived,
+        isPublic,
         uploadStatus,
         usageCount,
       ];

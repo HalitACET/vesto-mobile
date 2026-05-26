@@ -204,6 +204,11 @@ class AppUser extends Equatable {
     this.stylePreferences,
     this.isProfileComplete = false,
     this.lastCompletedStep,
+    this.bio = '',
+    this.username,
+    this.wardrobePublic = false,
+    this.followerCount = 0,
+    this.followingCount = 0,
   });
 
   final String uid;
@@ -222,9 +227,32 @@ class AppUser extends Equatable {
   final bool isProfileComplete;
   final ProfileSetupStep? lastCompletedStep;
 
+  final String bio;
+  final String? username;
+  final bool wardrobePublic;
+  final int followerCount;
+  final int followingCount;
+
   factory AppUser.fromFirestore(Map<String, dynamic> data, String uid) {
-    final locationData = data['location'] as Map<String, dynamic>?;
-    final styleData = data['stylePreferences'] as Map<String, dynamic>?;
+    UserLocation? location;
+    final rawLocation = data['location'];
+    if (rawLocation is Map<String, dynamic>) {
+      location = UserLocation.fromMap(rawLocation);
+    } else if (rawLocation is String && rawLocation.isNotEmpty) {
+      location = UserLocation(city: rawLocation);
+    }
+
+    StylePreferences? stylePreferences;
+    final rawStyle = data['stylePreferences'];
+    if (rawStyle is Map<String, dynamic>) {
+      stylePreferences = StylePreferences.fromMap(rawStyle);
+    } else if (rawStyle is List) {
+      final occasions = rawStyle
+          .map((e) => Occasion.fromString(e as String?))
+          .whereType<Occasion>()
+          .toList();
+      stylePreferences = StylePreferences(occasions: occasions);
+    }
 
     return AppUser(
       uid: uid,
@@ -239,13 +267,16 @@ class AppUser extends Equatable {
       birthYear: data['birthYear'] as int?,
       heightCm: data['heightCm'] as int?,
       weightKg: data['weightKg'] as int?,
-      location:
-          locationData != null ? UserLocation.fromMap(locationData) : null,
-      stylePreferences:
-          styleData != null ? StylePreferences.fromMap(styleData) : null,
+      location: location,
+      stylePreferences: stylePreferences,
       isProfileComplete: data['isProfileComplete'] as bool? ?? false,
       lastCompletedStep:
           ProfileSetupStep.fromString(data['lastCompletedStep'] as String?),
+      bio: data['bio'] as String? ?? '',
+      username: data['username'] as String?,
+      wardrobePublic: data['wardrobePublic'] as bool? ?? false,
+      followerCount: data['followerCount'] as int? ?? 0,
+      followingCount: data['followingCount'] as int? ?? 0,
     );
   }
 
@@ -266,6 +297,11 @@ class AppUser extends Equatable {
         'isProfileComplete': isProfileComplete,
         if (lastCompletedStep != null)
           'lastCompletedStep': lastCompletedStep!.value,
+        'bio': bio,
+        if (username != null) 'username': username,
+        'wardrobePublic': wardrobePublic,
+        'followerCount': followerCount,
+        'followingCount': followingCount,
       };
 
   AppUser copyWith({
@@ -283,6 +319,11 @@ class AppUser extends Equatable {
     StylePreferences? stylePreferences,
     bool? isProfileComplete,
     ProfileSetupStep? lastCompletedStep,
+    String? bio,
+    String? username,
+    bool? wardrobePublic,
+    int? followerCount,
+    int? followingCount,
   }) {
     return AppUser(
       uid: uid ?? this.uid,
@@ -299,6 +340,11 @@ class AppUser extends Equatable {
       stylePreferences: stylePreferences ?? this.stylePreferences,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
       lastCompletedStep: lastCompletedStep ?? this.lastCompletedStep,
+      bio: bio ?? this.bio,
+      username: username ?? this.username,
+      wardrobePublic: wardrobePublic ?? this.wardrobePublic,
+      followerCount: followerCount ?? this.followerCount,
+      followingCount: followingCount ?? this.followingCount,
     );
   }
 
@@ -318,5 +364,10 @@ class AppUser extends Equatable {
         stylePreferences,
         isProfileComplete,
         lastCompletedStep,
+        bio,
+        username,
+        wardrobePublic,
+        followerCount,
+        followingCount,
       ];
 }

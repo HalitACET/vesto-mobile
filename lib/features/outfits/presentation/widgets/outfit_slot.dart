@@ -46,12 +46,12 @@ class OutfitSlot extends ConsumerWidget {
             height: height,
             width: width,
             decoration: BoxDecoration(
-              color: isHovering ? AppColors.mist : AppColors.pearl,
+              color: isHovering ? AppColors.mist.withValues(alpha: 0.2) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isHovering ? AppColors.onyx : (itemId != null ? AppColors.mist : AppColors.stone),
+                color: isHovering ? AppColors.onyx : (itemId != null ? AppColors.mist : AppColors.stone.withValues(alpha: 0.3)),
                 width: isHovering ? 2 : 1,
-                style: (itemId != null || isHovering) ? BorderStyle.solid : BorderStyle.none,
+                style: BorderStyle.solid,
               ),
             ),
             child: itemId == null
@@ -90,17 +90,18 @@ class OutfitSlot extends ConsumerWidget {
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(11),
                 child: CachedNetworkImage(
-                  imageUrl: item.imageUrl ?? '',
+                  // bgRemovedUrl varsa onu kullan (transparent PNG) — yoksa orijinal
+                  imageUrl: item.bgRemovedUrl ?? item.imageUrl ?? '',
                   width: double.infinity,
                   height: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,   // contain: transparent bg ile daha iyi görünür
                   placeholder: (context, url) => Container(color: AppColors.pearl),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               )
             : const SizedBox.shrink(),
           loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          error: (_, __) => const Center(child: Icon(Icons.error)),
+          error: (_, _) => const Center(child: Icon(Icons.error)),
         ),
         Positioned(
           top: 4,

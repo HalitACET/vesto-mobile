@@ -105,11 +105,13 @@ class WardrobePickerSheet extends ConsumerWidget {
                             child: Container(
                               width: 100,
                               height: 125,
-                              decoration: BoxDecoration(
+                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 image: DecorationImage(
-                                  image: CachedNetworkImageProvider(item.imageUrl ?? ''),
-                                  fit: BoxFit.cover,
+                                  image: CachedNetworkImageProvider(
+                                    item.bgRemovedUrl ?? item.imageUrl ?? '',
+                                  ),
+                                  fit: BoxFit.contain,
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
@@ -134,10 +136,13 @@ class WardrobePickerSheet extends ConsumerWidget {
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: CachedNetworkImage(
-                                imageUrl: item.imageUrl ?? '',
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(color: AppColors.pearl),
-                                errorWidget: (context, url, error) => const Icon(Icons.error),
+                                imageUrl: item.bgRemovedUrl ?? item.imageUrl ?? '',
+                                fit: BoxFit.contain,
+                                errorWidget: (_, _, _) => CachedNetworkImage(
+                                  imageUrl: item.imageUrl ?? '',
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, _, _) => const Icon(Icons.broken_image),
+                                ),
                               ),
                             ),
                           ),

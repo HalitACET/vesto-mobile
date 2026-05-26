@@ -18,8 +18,10 @@ class MainShell extends StatelessWidget {
       currentIndex = 1;
     } else if (location.startsWith('/outfits')) {
       currentIndex = 2;
-    } else if (location.startsWith('/profile')) {
+    } else if (location.startsWith('/forum')) {
       currentIndex = 3;
+    } else if (location.startsWith('/profile')) {
+      currentIndex = 4;
     }
     
     return Scaffold(
@@ -37,7 +39,11 @@ class MainShell extends StatelessWidget {
           ),
           VestoBottomNavItem(
             icon: Icons.style_outlined,
-            label: 'Outfitler',
+            label: 'Kombin',
+          ),
+          VestoBottomNavItem(
+            icon: Icons.forum_outlined,
+            label: 'Forum',
           ),
           VestoBottomNavItem(
             icon: Icons.person_outline,
@@ -56,6 +62,9 @@ class MainShell extends StatelessWidget {
               context.go('/outfits');
               break;
             case 3:
+              context.go('/forum');
+              break;
+            case 4:
               context.go('/profile');
               break;
           }

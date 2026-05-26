@@ -7,7 +7,7 @@ import 'package:mobile/core/errors/failure.dart';
 import 'package:mobile/core/services/image_service.dart';
 import 'package:mobile/core/services/upload_service.dart';
 import 'package:mobile/core/utils/result.dart';
-import 'package:mobile/features/auth/presentation/providers/auth_providers.dart';
+import 'package:mobile/core/network/firebase_providers.dart';
 import 'package:mobile/features/wardrobe/data/models/item_category.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
 import 'package:mobile/features/wardrobe/data/repositories/wardrobe_repository.dart';
@@ -24,6 +24,7 @@ class AddItemState extends Equatable {
     this.size,
     this.notes,
     this.uploadProgress,
+    this.isPublic = false,
   });
 
   const AddItemState.initial()
@@ -33,7 +34,8 @@ class AddItemState extends Equatable {
         brand = null,
         size = null,
         notes = null,
-        uploadProgress = null;
+        uploadProgress = null,
+        isPublic = false;
 
   final File? croppedPhoto;
   final ItemCategory? category;
@@ -42,6 +44,7 @@ class AddItemState extends Equatable {
   final String? size;
   final String? notes;
   final double? uploadProgress;
+  final bool isPublic;
 
   bool get isValid => croppedPhoto != null && category != null && subcategory != null;
 
@@ -53,6 +56,7 @@ class AddItemState extends Equatable {
     String? size,
     String? notes,
     double? uploadProgress,
+    bool? isPublic,
     bool resetSubcategory = false,
   }) {
     return AddItemState(
@@ -63,6 +67,7 @@ class AddItemState extends Equatable {
       size: size ?? this.size,
       notes: notes ?? this.notes,
       uploadProgress: uploadProgress ?? this.uploadProgress,
+      isPublic: isPublic ?? this.isPublic,
     );
   }
 
@@ -75,6 +80,7 @@ class AddItemState extends Equatable {
         size,
         notes,
         uploadProgress,
+        isPublic,
       ];
 }
 
@@ -114,6 +120,10 @@ class AddItemNotifier extends _$AddItemNotifier {
     state = state.copyWith(notes: notes?.trim().isEmpty == true ? null : notes?.trim());
   }
 
+  void setIsPublic(bool isPublic) {
+    state = state.copyWith(isPublic: isPublic);
+  }
+
   // ── Step 4: Save (Optimistic UI) ──────────────────────────────────────────
 
   Future<Result<WardrobeItem, Failure>> save() async {
@@ -121,7 +131,7 @@ class AddItemNotifier extends _$AddItemNotifier {
       return const Err(FirestoreWriteFailure('Eksik bilgi girdiniz.'));
     }
 
-    final user = ref.read(currentUserProvider).value;
+    final user = ref.read(firebaseAuthProvider).currentUser;
     if (user == null) {
       return const Err(UnauthenticatedFailure());
     }
@@ -144,6 +154,7 @@ class AddItemNotifier extends _$AddItemNotifier {
       createdAt: now,
       updatedAt: now,
       uploadStatus: UploadStatus.uploading,
+      isPublic: state.isPublic,
     );
 
     // 2. Firestore'a hemen yaz (status: uploading, imageUrl: null)

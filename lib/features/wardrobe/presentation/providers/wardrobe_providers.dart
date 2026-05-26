@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:mobile/features/auth/presentation/providers/auth_providers.dart';
@@ -69,4 +68,9 @@ List<WardrobeItem> filteredWardrobeItems(Ref ref) {
 @riverpod
 Stream<WardrobeItem?> wardrobeItemStream(Ref ref, String itemId) {
   return ref.watch(wardrobeRepositoryProvider).watchItem(itemId);
+}
+
+@riverpod
+Stream<List<WardrobeItem>> userPublicWardrobeItems(Ref ref, String userId) {
+  return ref.watch(wardrobeRepositoryProvider).watchUserPublicItems(userId);
 }

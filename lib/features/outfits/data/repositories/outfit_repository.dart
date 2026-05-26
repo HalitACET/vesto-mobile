@@ -106,4 +106,12 @@ class OutfitRepository {
       'isFavorite': !currentStatus,
     });
   }
+
+  // Watch a single outfit
+  Stream<Outfit?> watchOutfit(String outfitId) {
+    return _outfits
+        .doc(outfitId)
+        .snapshots()
+        .map((doc) => doc.exists ? Outfit.fromFirestore(doc) : null);
+  }
 }

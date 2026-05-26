@@ -14,11 +14,11 @@ class OutfitEmptyState extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.pearl,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.checkroom_outlined,
                 size: 48,
                 color: AppColors.stone,

@@ -15,11 +15,19 @@ import 'package:mobile/features/auth/presentation/screens/signup_screen.dart';
 import 'package:mobile/features/auth/presentation/screens/splash_screen.dart';
 import 'package:mobile/app/main_shell.dart';
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
+import 'package:mobile/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:mobile/features/profile/presentation/screens/profile_settings_screen.dart';
+import 'package:mobile/features/profile/presentation/screens/public_profile_screen.dart';
+import 'package:mobile/features/profile/presentation/screens/follow_list_screen.dart';
 import 'package:mobile/features/wardrobe/presentation/screens/add_item/add_item_screen.dart' as mobile_add_item;
 import 'package:mobile/features/wardrobe/presentation/screens/item_detail_screen.dart';
 import 'package:mobile/features/wardrobe/presentation/screens/wardrobe_screen.dart';
 import 'package:mobile/features/outfits/presentation/screens/outfits_screen.dart';
 import 'package:mobile/features/today/presentation/screens/today_screen.dart';
+import 'package:mobile/features/forum/presentation/screens/forum_feed_screen.dart';
+import 'package:mobile/features/forum/presentation/screens/forum_post_detail_screen.dart';
+import 'package:mobile/features/forum/presentation/screens/forum_share_screen.dart';
+import 'package:mobile/features/forum/presentation/screens/forum_create_post_screen.dart';
 
 part 'router.g.dart';
 
@@ -33,10 +41,19 @@ abstract class AppRoutes {
   static const wardrobe = '/wardrobe';
   static const outfits = '/outfits';
   static const profile = '/profile';
+  static const profileEdit = '/profile/edit';
+  static const profileSettings = '/profile/settings';
+  static const publicProfile = '/u/:userId';
+  static const publicProfileFollowers = '/u/:userId/followers';
+  static const publicProfileFollowing = '/u/:userId/following';
   static const today = '/today';
   static const devShowcase = '/dev/showcase';
   static const wardrobeAdd = '/wardrobe/add';
   static const wardrobeItemDetail = '/wardrobe/item/:itemId';
+  static const forum = '/forum';
+  static const forumPostDetail = '/forum/post/:postId';
+  static const forumShare = '/forum/share/:outfitId';
+  static const forumCreatePost = '/forum/new';
 }
 
 const _authRoutes = {
@@ -126,8 +143,20 @@ GoRouter appRouter(Ref ref) {
             builder: (context, state) => const OutfitsScreen(),
           ),
           GoRoute(
+            path: AppRoutes.forum,
+            builder: (context, state) => const ForumFeedScreen(),
+          ),
+          GoRoute(
             path: AppRoutes.profile,
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profileEdit,
+            builder: (context, state) => const EditProfileScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profileSettings,
+            builder: (context, state) => const ProfileSettingsScreen(),
           ),
         ],
       ),
@@ -136,10 +165,46 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const mobile_add_item.AddItemScreen(),
       ),
       GoRoute(
+        path: AppRoutes.publicProfile,
+        builder: (context, state) => PublicProfileScreen(
+          userId: state.pathParameters['userId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.publicProfileFollowers,
+        builder: (context, state) => FollowListScreen(
+          userId: state.pathParameters['userId']!,
+          showFollowers: true,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.publicProfileFollowing,
+        builder: (context, state) => FollowListScreen(
+          userId: state.pathParameters['userId']!,
+          showFollowers: false,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.wardrobeItemDetail,
         builder: (context, state) => ItemDetailScreen(
           itemId: state.pathParameters['itemId']!,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.forumPostDetail,
+        builder: (context, state) => ForumPostDetailScreen(
+          postId: state.pathParameters['postId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forumShare,
+        builder: (context, state) => ForumShareScreen(
+          outfitId: state.pathParameters['outfitId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forumCreatePost,
+        builder: (context, state) => const ForumCreatePostScreen(),
       ),
       if (kDebugMode)
         GoRoute(
@@ -158,8 +223,8 @@ GoRouter appRouter(Ref ref) {
 /// GoRouter'ı Riverpod auth + onboarding state değişikliklerine karşı reaktif yapan köprü.
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier(Ref ref) {
-    ref.listen(authStateChangesProvider, (_, __) => notifyListeners());
-    ref.listen(hasSeenOnboardingProvider, (_, __) => notifyListeners());
-    ref.listen(currentUserProvider, (_, __) => notifyListeners());
+    ref.listen(authStateChangesProvider, (_, _) => notifyListeners());
+    ref.listen(hasSeenOnboardingProvider, (_, _) => notifyListeners());
+    ref.listen(currentUserProvider, (_, _) => notifyListeners());
   }
 }

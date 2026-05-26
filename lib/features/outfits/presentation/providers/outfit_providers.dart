@@ -70,3 +70,19 @@ Future<List<WardrobeItem>> wardrobeItemsByIds(Ref ref, String idsString) async {
   print('DEBUG: Fetching wardrobe items by IDs: $ids');
   return ref.watch(wardrobeRepositoryProvider).getItemsByIds(ids);
 }
+
+@riverpod
+String mannequinType(Ref ref) {
+  final user = ref.watch(currentUserProvider).value;
+  
+  switch (user?.gender?.value) {
+    case 'female': return 'female';
+    case 'male': return 'male';
+    default: return 'unisex';
+  }
+}
+
+@riverpod
+Stream<Outfit?> outfitStream(Ref ref, String outfitId) {
+  return ref.watch(outfitRepositoryProvider).watchOutfit(outfitId);
+}
