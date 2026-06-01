@@ -8,19 +8,51 @@ import 'package:mobile/features/outfits/presentation/providers/outfit_providers.
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
 import 'package:go_router/go_router.dart';
 
-class OutfitDetailScreen extends ConsumerWidget {
+class OutfitDetailScreen extends ConsumerStatefulWidget {
   final Outfit outfit;
 
   const OutfitDetailScreen({super.key, required this.outfit});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OutfitDetailScreen> createState() => _OutfitDetailScreenState();
+}
+
+class _OutfitDetailScreenState extends ConsumerState<OutfitDetailScreen> {
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.outfit.isFavorite;
+  }
+
+  Future<void> _toggleFavorite() async {
+    final previousState = _isFavorite;
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+    try {
+      await ref.read(outfitRepositoryProvider).toggleFavorite(widget.outfit.id, previousState);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isFavorite = previousState;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Favori güncellenemedi: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Get full items details
     final itemIds = [
-      outfit.items.topId,
-      outfit.items.bottomId,
-      outfit.items.shoesId,
-      outfit.items.accessoryId
+      widget.outfit.items.topId,
+      widget.outfit.items.bottomId,
+      widget.outfit.items.shoesId,
+      widget.outfit.items.accessoryId
     ].whereType<String>().toList();
 
     final itemsAsync = ref.watch(wardrobeItemsByIdsProvider(itemIds.join(',')));
@@ -31,12 +63,10 @@ class OutfitDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(
-              outfit.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: outfit.isFavorite ? Colors.red : null,
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite ? Colors.red : null,
             ),
-            onPressed: () {
-              ref.read(outfitRepositoryProvider).toggleFavorite(outfit.id, outfit.isFavorite);
-            },
+            onPressed: _toggleFavorite,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -55,7 +85,7 @@ class OutfitDetailScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    outfit.name,
+                    widget.outfit.name,
                     style: const TextStyle(
                       fontFamily: 'Playfair Display',
                       fontSize: 32,
@@ -72,14 +102,14 @@ class OutfitDetailScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${outfit.wearCount} kez giyildi',
+                          '${widget.outfit.wearCount} kez giyildi',
                           style: const TextStyle(fontSize: 12, color: AppColors.stone),
                         ),
                       ),
-                      if (outfit.lastWorn != null) ...[
+                      if (widget.outfit.lastWorn != null) ...[
                         const SizedBox(width: 12),
                         Text(
-                          'Son: ${DateFormat('dd MMM yyyy').format(outfit.lastWorn!)}',
+                          'Son: ${DateFormat('dd MMM yyyy').format(widget.outfit.lastWorn!)}',
                           style: const TextStyle(fontSize: 12, color: AppColors.stone),
                         ),
                       ],
@@ -91,7 +121,13 @@ class OutfitDetailScreen extends ConsumerWidget {
 
             // Visual Canvas (Simplified for Detail)
             itemsAsync.when(
-              data: (items) => _buildCanvas(items),
+              data: (items) => Hero(
+                tag: 'outfit-${widget.outfit.id}',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: _buildCanvas(items),
+                ),
+              ),
               loading: () => const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
               error: (e, _) => Center(child: Text('Hata: $e')),
             ),
@@ -105,7 +141,7 @@ class OutfitDetailScreen extends ConsumerWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      await ref.read(outfitRepositoryProvider).markAsWorn(outfit);
+                      await ref.read(outfitRepositoryProvider).markAsWorn(widget.outfit);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Harika görünüyorsun! Giyim kaydedildi.')),
@@ -122,7 +158,7 @@ class OutfitDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: () => context.push('/forum/share/${outfit.id}'),
+                    onPressed: () => context.push('/forum/share/${widget.outfit.id}'),
                     icon: const Icon(Icons.share_outlined),
                     label: const Text('FORUM\'DA PAYLAŞ', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                     style: OutlinedButton.styleFrom(
@@ -145,20 +181,24 @@ class OutfitDetailScreen extends ConsumerWidget {
 
   Widget _buildCanvas(List<WardrobeItem> items) {
     // Map items back to slots
-    final top = items.where((i) => i.id == outfit.items.topId).firstOrNull;
-    final bottom = items.where((i) => i.id == outfit.items.bottomId).firstOrNull;
-    final shoes = items.where((i) => i.id == outfit.items.shoesId).firstOrNull;
-    final accessory = items.where((i) => i.id == outfit.items.accessoryId).firstOrNull;
+    final top = items.where((i) => i.id == widget.outfit.items.topId).firstOrNull;
+    final bottom = items.where((i) => i.id == widget.outfit.items.bottomId).firstOrNull;
+    final shoes = items.where((i) => i.id == widget.outfit.items.shoesId).firstOrNull;
+    final accessory = items.where((i) => i.id == widget.outfit.items.accessoryId).firstOrNull;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          if (top != null) _buildItemRow('Üst Giyim', top),
-          if (bottom != null) _buildItemRow('Alt Giyim', bottom),
-          if (shoes != null) _buildItemRow('Ayakkabı', shoes),
-          if (accessory != null) _buildItemRow('Aksesuar', accessory),
-        ],
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (top != null) _buildItemRow('Üst Giyim', top),
+            if (bottom != null) _buildItemRow('Alt Giyim', bottom),
+            if (shoes != null) _buildItemRow('Ayakkabı', shoes),
+            if (accessory != null) _buildItemRow('Aksesuar', accessory),
+          ],
+        ),
       ),
     );
   }
@@ -179,20 +219,35 @@ class OutfitDetailScreen extends ConsumerWidget {
             child: CachedNetworkImage(
               imageUrl: item.imageUrl ?? '',
               fit: BoxFit.cover,
+              fadeInDuration: const Duration(milliseconds: 300),
             ),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.stone, fontWeight: FontWeight.bold)),
-              Text(
-                item.subcategory.isNotEmpty ? item.subcategory : item.category.displayLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              if (item.brand != null)
-                Text(item.brand!, style: const TextStyle(fontSize: 14, color: AppColors.stone)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label, 
+                  style: const TextStyle(fontSize: 12, color: AppColors.stone, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  item.subcategory.isNotEmpty ? item.subcategory : item.category.displayLabel,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (item.brand != null)
+                  Text(
+                    item.brand!, 
+                    style: const TextStyle(fontSize: 14, color: AppColors.stone),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -209,7 +264,7 @@ class OutfitDetailScreen extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('VAZGEÇ')),
           TextButton(
             onPressed: () {
-              ref.read(outfitRepositoryProvider).deleteOutfit(outfit.id);
+              ref.read(outfitRepositoryProvider).deleteOutfit(widget.outfit.id);
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back from detail
             },

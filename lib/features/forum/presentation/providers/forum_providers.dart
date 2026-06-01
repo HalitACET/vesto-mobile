@@ -4,6 +4,8 @@ import 'package:mobile/core/network/firebase_providers.dart';
 import 'package:mobile/features/forum/data/models/forum_post.dart';
 import 'package:mobile/features/forum/data/models/forum_comment.dart';
 import 'package:mobile/features/forum/data/repositories/forum_repository.dart';
+import 'package:mobile/features/auth/data/models/app_user.dart';
+import 'package:mobile/features/profile/presentation/providers/profile_providers.dart';
 
 part 'forum_providers.g.dart';
 
@@ -57,6 +59,30 @@ class ForumShareNotifier extends _$ForumShareNotifier {
       state = AsyncError(e, st);
     }
   }
+}
+
+@riverpod
+Future<List<AppUser>> userSearch(
+  Ref ref,
+  String query,
+) async {
+  if (query.length < 2) return [];
+  return ref.read(userRepositoryProvider).searchUsers(query);
+}
+
+@riverpod
+Future<List<AppUser>> topStylists(Ref ref) async {
+  return ref.read(userRepositoryProvider).getTopStylists();
+}
+
+@riverpod
+Future<List<AppUser>> featuredUsers(Ref ref) async {
+  return ref.read(userRepositoryProvider).getFeaturedUsers();
+}
+
+@riverpod
+Future<List<AppUser>> newUsers(Ref ref) async {
+  return ref.read(userRepositoryProvider).getNewUsers();
 }
 
 @riverpod

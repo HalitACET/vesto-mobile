@@ -275,18 +275,22 @@ class _ThumbnailImage extends StatelessWidget {
       );
     }
 
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      placeholder: (_, _) => Shimmer.fromColors(
-        baseColor: AppColors.mist,
-        highlightColor: AppColors.pearl,
-        child: Container(color: AppColors.mist),
-      ),
-      errorWidget: (_, _, _) => Container(
-        color: AppColors.pearl,
-        child: const Center(
-          child: Icon(Icons.broken_image_outlined, color: AppColors.stone, size: 24),
+    return Hero(
+      tag: 'wardrobe-item-${item.id}',
+      child: CachedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+        fadeInDuration: const Duration(milliseconds: 300),
+        placeholder: (_, _) => Shimmer.fromColors(
+          baseColor: AppColors.mist,
+          highlightColor: AppColors.pearl,
+          child: Container(color: AppColors.mist),
+        ),
+        errorWidget: (_, _, _) => Container(
+          color: AppColors.pearl,
+          child: const Center(
+            child: Icon(Icons.broken_image_outlined, color: AppColors.stone, size: 24),
+          ),
         ),
       ),
     );

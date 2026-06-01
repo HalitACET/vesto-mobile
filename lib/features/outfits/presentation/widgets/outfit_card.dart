@@ -28,9 +28,11 @@ class OutfitCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Mini Collage Grid (2x2)
-          AspectRatio(
-            aspectRatio: 1,
-            child: Container(
+          Hero(
+            tag: 'outfit-${outfit.id}',
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
               decoration: BoxDecoration(
                 color: AppColors.pearl,
                 borderRadius: BorderRadius.circular(12),
@@ -80,6 +82,7 @@ class OutfitCard extends ConsumerWidget {
                           return CachedNetworkImage(
                             imageUrl: item.imageUrl ?? '',
                             fit: BoxFit.cover,
+                            fadeInDuration: const Duration(milliseconds: 300),
                             placeholder: (context, url) => Container(color: AppColors.pearl),
                             errorWidget: (context, url, error) => const Icon(Icons.error),
                           );
@@ -109,6 +112,7 @@ class OutfitCard extends ConsumerWidget {
                       ),
                     ),
                 ],
+              ),
               ),
             ),
           ),

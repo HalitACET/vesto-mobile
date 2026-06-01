@@ -5,6 +5,7 @@ import 'package:mobile/app/theme/app_typography.dart';
 import 'package:mobile/core/widgets/molecules/vesto_app_bar.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_providers.dart';
 import 'package:mobile/features/profile/presentation/providers/profile_providers.dart';
+import 'package:mobile/features/stylist/data/repositories/stylist_repository.dart';
 
 class ProfileSettingsScreen extends ConsumerWidget {
   const ProfileSettingsScreen({super.key});
@@ -63,6 +64,77 @@ class ProfileSettingsScreen extends ConsumerWidget {
                             user.uid,
                             value,
                           );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Text(
+                'STİLİSTLİK',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.stone,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.mist),
+              ),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Row(
+                      children: [
+                        const Text(
+                          'Stilist Modu',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.onyx,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.onyx,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: const Text(
+                            '✦ Stilist',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    subtitle: const Text(
+                      'Açıksa başkalarının gardırobuna girip kombin önerebilirsin',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        color: AppColors.stone,
+                      ),
+                    ),
+                    value: user?.isStylistModeActive ?? false,
+                    activeThumbColor: AppColors.onyx,
+                    onChanged: (value) async {
+                      if (user == null) return;
+                      await StylistRepository().setStylistMode(value);
+                      ref.invalidate(currentUserProvider);
                     },
                   ),
                 ],

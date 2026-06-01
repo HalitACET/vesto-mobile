@@ -209,6 +209,12 @@ class AppUser extends Equatable {
     this.wardrobePublic = false,
     this.followerCount = 0,
     this.followingCount = 0,
+    this.isStylistModeActive = false,
+    this.fcmToken,
+    this.suggestionsSent = 0,
+    this.suggestionsAccepted = 0,
+    this.averageRating = 0.0,
+    this.ratingCount = 0,
   });
 
   final String uid;
@@ -232,6 +238,14 @@ class AppUser extends Equatable {
   final bool wardrobePublic;
   final int followerCount;
   final int followingCount;
+  final bool isStylistModeActive;
+  final String? fcmToken;
+
+  // Stylist stats
+  final int suggestionsSent;
+  final int suggestionsAccepted;
+  final double averageRating;
+  final int ratingCount;
 
   factory AppUser.fromFirestore(Map<String, dynamic> data, String uid) {
     UserLocation? location;
@@ -277,6 +291,12 @@ class AppUser extends Equatable {
       wardrobePublic: data['wardrobePublic'] as bool? ?? false,
       followerCount: data['followerCount'] as int? ?? 0,
       followingCount: data['followingCount'] as int? ?? 0,
+      isStylistModeActive: data['isStylistModeActive'] as bool? ?? false,
+      fcmToken: data['fcmToken'] as String?,
+      suggestionsSent: data['suggestionsSent'] as int? ?? 0,
+      suggestionsAccepted: data['suggestionsAccepted'] as int? ?? 0,
+      averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
+      ratingCount: data['ratingCount'] as int? ?? 0,
     );
   }
 
@@ -302,6 +322,12 @@ class AppUser extends Equatable {
         'wardrobePublic': wardrobePublic,
         'followerCount': followerCount,
         'followingCount': followingCount,
+        'isStylistModeActive': isStylistModeActive,
+        if (fcmToken != null) 'fcmToken': fcmToken,
+        'suggestionsSent': suggestionsSent,
+        'suggestionsAccepted': suggestionsAccepted,
+        'averageRating': averageRating,
+        'ratingCount': ratingCount,
       };
 
   AppUser copyWith({
@@ -324,6 +350,12 @@ class AppUser extends Equatable {
     bool? wardrobePublic,
     int? followerCount,
     int? followingCount,
+    bool? isStylistModeActive,
+    String? fcmToken,
+    int? suggestionsSent,
+    int? suggestionsAccepted,
+    double? averageRating,
+    int? ratingCount,
   }) {
     return AppUser(
       uid: uid ?? this.uid,
@@ -345,6 +377,12 @@ class AppUser extends Equatable {
       wardrobePublic: wardrobePublic ?? this.wardrobePublic,
       followerCount: followerCount ?? this.followerCount,
       followingCount: followingCount ?? this.followingCount,
+      isStylistModeActive: isStylistModeActive ?? this.isStylistModeActive,
+      fcmToken: fcmToken ?? this.fcmToken,
+      suggestionsSent: suggestionsSent ?? this.suggestionsSent,
+      suggestionsAccepted: suggestionsAccepted ?? this.suggestionsAccepted,
+      averageRating: averageRating ?? this.averageRating,
+      ratingCount: ratingCount ?? this.ratingCount,
     );
   }
 
@@ -369,5 +407,11 @@ class AppUser extends Equatable {
         wardrobePublic,
         followerCount,
         followingCount,
+        isStylistModeActive,
+        fcmToken,
+        suggestionsSent,
+        suggestionsAccepted,
+        averageRating,
+        ratingCount,
       ];
 }

@@ -15,6 +15,7 @@ class OutfitSlot extends ConsumerWidget {
   final double? width;
 
   final void Function(String)? onSelected;
+  final bool readOnly;
 
   const OutfitSlot({
     super.key,
@@ -25,6 +26,7 @@ class OutfitSlot extends ConsumerWidget {
     this.onSelected,
     this.height,
     this.width,
+    this.readOnly = false,
   });
 
   @override
@@ -32,15 +34,15 @@ class OutfitSlot extends ConsumerWidget {
     final itemAsync = itemId != null ? ref.watch(wardrobeItemStreamProvider(itemId!)) : null;
 
     return DragTarget<String>(
-      onWillAcceptWithDetails: (details) => true,
+      onWillAcceptWithDetails: (details) => !readOnly,
       onAcceptWithDetails: (details) {
-        onSelected?.call(details.data);
+        if (!readOnly) onSelected?.call(details.data);
       },
       builder: (context, candidateData, rejectedData) {
-        final isHovering = candidateData.isNotEmpty;
-        
+        final isHovering = !readOnly && candidateData.isNotEmpty;
+
         return GestureDetector(
-          onTap: onTap,
+          onTap: readOnly ? null : onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             height: height,
@@ -106,19 +108,21 @@ class OutfitSlot extends ConsumerWidget {
         Positioned(
           top: 4,
           right: 4,
-          child: GestureDetector(
-            onTap: () {
-              onRemove();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.close, size: 12, color: Colors.white),
-            ),
-          ),
+          child: readOnly
+              ? const SizedBox.shrink()
+              : GestureDetector(
+                  onTap: () {
+                    onRemove();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                  ),
+                ),
         ),
       ],
     );

@@ -174,4 +174,68 @@ class UserRepository {
 
     return users.whereType<AppUser>().toList();
   }
+
+  // Kullanıcı arama
+  Future<List<AppUser>> searchUsers(String query) async {
+    if (query.trim().isEmpty) return [];
+
+    final queryLower = query.toLowerCase().trim();
+
+    // displayName ile ara
+    final nameSnap = await _firestore
+        .collection('users')
+        .where('displayName', isGreaterThanOrEqualTo: query)
+        .where('displayName', isLessThan: '$query\uf8ff')
+        .limit(10)
+        .get();
+
+    // username ile ara
+    final usernameSnap = await _firestore
+        .collection('users')
+        .where('username', isGreaterThanOrEqualTo: queryLower)
+        .where('username', isLessThan: '$queryLower\uf8ff')
+        .limit(10)
+        .get();
+
+    // Birleştir, duplicate çıkar
+    final allUsers = [
+      ...nameSnap.docs.map((d) => AppUser.fromFirestore(d.data(), d.id)),
+      ...usernameSnap.docs.map((d) => AppUser.fromFirestore(d.data(), d.id)),
+    ];
+
+    // Duplicate'leri temizle
+    final seen = <String>{};
+    return allUsers.where((u) => seen.add(u.uid)).toList();
+  }
+
+  // Keşfet — Stilistler
+  Future<List<AppUser>> getTopStylists({int limit = 10}) async {
+    final snap = await _firestore
+        .collection('users')
+        .where('isStylistModeActive', isEqualTo: true)
+        .orderBy('followerCount', descending: true)
+        .limit(limit)
+        .get();
+    return snap.docs.map((d) => AppUser.fromFirestore(d.data(), d.id)).toList();
+  }
+
+  // Keşfet — Yeni Katılanlar
+  Future<List<AppUser>> getNewUsers({int limit = 10}) async {
+    final snap = await _firestore
+        .collection('users')
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .get();
+    return snap.docs.map((d) => AppUser.fromFirestore(d.data(), d.id)).toList();
+  }
+
+  // Keşfet — Öne Çıkanlar (en çok follower)
+  Future<List<AppUser>> getFeaturedUsers({int limit = 10}) async {
+    final snap = await _firestore
+        .collection('users')
+        .orderBy('followerCount', descending: true)
+        .limit(limit)
+        .get();
+    return snap.docs.map((d) => AppUser.fromFirestore(d.data(), d.id)).toList();
+  }
 }

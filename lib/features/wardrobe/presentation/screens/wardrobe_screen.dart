@@ -13,6 +13,7 @@ import 'package:mobile/features/wardrobe/presentation/widgets/wardrobe_filter_ba
 import 'package:mobile/features/wardrobe/presentation/widgets/wardrobe_grid.dart';
 import 'package:mobile/features/wardrobe/presentation/widgets/wardrobe_search_bar.dart';
 import 'package:mobile/features/wardrobe/presentation/widgets/wardrobe_view_toggle.dart';
+import 'package:mobile/core/widgets/organisms/vesto_error_view.dart';
 
 /// Hafta 5: Gardırop ana ekranı — home'un yerini alan gerçek içerik.
 /// Riverpod stream'inden canlı Firestore verisi, filter + search + view toggle.
@@ -71,8 +72,15 @@ class WardrobeScreen extends ConsumerWidget {
                 ),
               ),
             // Ana içerik
-            SliverFillRemaining(
-              child: _WardrobeBody(
+            if (itemsAsync.hasError)
+              SliverFillRemaining(
+                child: VestoErrorView(
+                  message: 'Kıyafetler yüklenemedi',
+                  onRetry: () => ref.invalidate(userWardrobeItemsProvider),
+                ),
+              )
+            else
+              _WardrobeBody(
                 isLoading: isLoading,
                 allItems: allItems,
                 filteredItems: filteredItems,
@@ -80,11 +88,9 @@ class WardrobeScreen extends ConsumerWidget {
                 hasSearch: hasSearch,
                 hasFilter: hasFilter,
                 onTap: (item) => context.push('/wardrobe/item/${item.id}'),
-                onLongPress: (item) =>
-                    _showItemBottomSheet(context, item, ref),
+                onLongPress: (item) => _showItemBottomSheet(context, item, ref),
                 onAddItem: () => context.push('/wardrobe/add'),
               ),
-            ),
           ],
         ),
       ),
@@ -153,18 +159,22 @@ class _WardrobeBody extends StatelessWidget {
 
     // Gardırop tamamen boş
     if (allItems.isEmpty) {
-      return WardrobeEmptyState(
-        variant: WardrobeEmptyVariant.wardrobeEmpty,
-        onAddItem: onAddItem,
+      return SliverFillRemaining(
+        child: WardrobeEmptyState(
+          variant: WardrobeEmptyVariant.wardrobeEmpty,
+          onAddItem: onAddItem,
+        ),
       );
     }
 
     // Arama veya filtre sonucu boş
     if (filteredItems.isEmpty) {
-      return WardrobeEmptyState(
-        variant: hasSearch
-            ? WardrobeEmptyVariant.noSearchResult
-            : WardrobeEmptyVariant.noFilterResult,
+      return SliverFillRemaining(
+        child: WardrobeEmptyState(
+          variant: hasSearch
+              ? WardrobeEmptyVariant.noSearchResult
+              : WardrobeEmptyVariant.noFilterResult,
+        ),
       );
     }
 

@@ -9,6 +9,7 @@ import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
 import 'package:mobile/features/wardrobe/data/repositories/wardrobe_repository.dart';
 import 'package:mobile/features/wardrobe/presentation/providers/wardrobe_providers.dart';
 import 'package:mobile/features/wardrobe/presentation/widgets/ai_analysis_section.dart';
+import 'package:mobile/core/widgets/organisms/vesto_error_view.dart';
 
 /// Kıyafet detay ekranı — read-only (Hafta 5).
 /// Hero animasyonu ile tam ekran fotoğraf geçişi + bilgi kartı.
@@ -25,10 +26,18 @@ class ItemDetailScreen extends ConsumerWidget {
       backgroundColor: AppColors.pearl,
       body: itemAsync.when(
         data: (item) {
-          if (item == null) return const _ErrorView(message: 'Kıyafet bulunamadı');
+          if (item == null) {
+            return VestoErrorView(
+              message: 'Kıyafet bulunamadı',
+              onRetry: () => ref.invalidate(wardrobeItemStreamProvider(itemId)),
+            );
+          }
           return _DetailView(item: item);
         },
-        error: (e, st) => _ErrorView(message: 'Hata: ${e.toString()}'),
+        error: (e, st) => VestoErrorView(
+          message: 'Kıyafet yüklenemedi',
+          onRetry: () => ref.invalidate(wardrobeItemStreamProvider(itemId)),
+        ),
         loading: () => const _LoadingView(),
       ),
     );
@@ -82,11 +91,12 @@ class _DetailView extends ConsumerWidget {
           ],
           flexibleSpace: FlexibleSpaceBar(
             background: Hero(
-              tag: 'wardrobe_item_${item.id}',
+              tag: 'wardrobe-item-${item.id}',
               child: imageUrl != null
                   ? CachedNetworkImage(
                       imageUrl: imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
+                      fadeInDuration: const Duration(milliseconds: 300),
                       placeholder: (_, _) => Shimmer.fromColors(
                         baseColor: AppColors.charcoal,
                         highlightColor: AppColors.graphite,
@@ -316,40 +326,3 @@ class _LoadingView extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.pearl,
-      appBar: AppBar(
-        backgroundColor: AppColors.pearl,
-        elevation: 0,
-        leading: const BackButton(),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                color: AppColors.stone,
-                size: 48,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                message,
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.stone),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

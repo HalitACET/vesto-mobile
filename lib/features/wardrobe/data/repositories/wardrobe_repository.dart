@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -35,7 +36,7 @@ class WardrobeRepository {
   Future<List<WardrobeItem>> getItemsByIds(List<String> ids) async {
     if (ids.isEmpty) return [];
     try {
-      print('DEBUG: [Firestore] Querying items for IDs: $ids');
+      debugPrint('DEBUG: [Firestore] Querying items for IDs: $ids');
       // documentId index'ini kullanarak hızlıca getir
       final queryTask = _firestore
           .collection(_collection)
@@ -44,12 +45,12 @@ class WardrobeRepository {
       
       final snapshots = await queryTask.timeout(const Duration(seconds: 5));
       
-      print('DEBUG: [Firestore] Found ${snapshots.docs.length} matches for requested ${ids.length} IDs');
+      debugPrint('DEBUG: [Firestore] Found ${snapshots.docs.length} matches for requested ${ids.length} IDs');
       
       final results = snapshots.docs.map((doc) => WardrobeItem.fromFirestore(doc)).toList();
       return results;
     } catch (e) {
-      print('DEBUG: [Firestore ERROR] getItemsByIds failed: $e');
+      debugPrint('DEBUG: [Firestore ERROR] getItemsByIds failed: $e');
       return [];
     }
   }
@@ -67,7 +68,7 @@ class WardrobeRepository {
       }
       await batch.commit();
     } catch (e) {
-      print('DEBUG: [Firestore ERROR] markItemsAsWorn failed: $e');
+      debugPrint('DEBUG: [Firestore ERROR] markItemsAsWorn failed: $e');
     }
   }
 

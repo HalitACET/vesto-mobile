@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -28,6 +27,11 @@ import 'package:mobile/features/forum/presentation/screens/forum_feed_screen.dar
 import 'package:mobile/features/forum/presentation/screens/forum_post_detail_screen.dart';
 import 'package:mobile/features/forum/presentation/screens/forum_share_screen.dart';
 import 'package:mobile/features/forum/presentation/screens/forum_create_post_screen.dart';
+import 'package:mobile/features/stylist/presentation/screens/stylist_browse_screen.dart';
+import 'package:mobile/features/stylist/presentation/screens/stylist_outfit_editor_screen.dart';
+import 'package:mobile/features/stylist/presentation/screens/recommendations_inbox_screen.dart';
+import 'package:mobile/features/stylist/presentation/screens/notifications_screen.dart';
+import 'package:mobile/features/auth/data/models/app_user.dart';
 
 part 'router.g.dart';
 
@@ -54,6 +58,10 @@ abstract class AppRoutes {
   static const forumPostDetail = '/forum/post/:postId';
   static const forumShare = '/forum/share/:outfitId';
   static const forumCreatePost = '/forum/new';
+  static const stylistBrowse = '/stylist/browse';
+  static const stylistRecommend = '/stylist/recommend/:targetUserId';
+  static const stylistInbox = '/stylist/inbox';
+  static const notifications = '/notifications';
 }
 
 const _authRoutes = {
@@ -105,111 +113,230 @@ GoRouter appRouter(Ref ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const SplashScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const OnboardingScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (context, state) => const SignupScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const SignupScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.profileSetup,
-        builder: (context, state) => const ProfileSetupScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ProfileSetupScreen(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(
             path: AppRoutes.today,
-            builder: (context, state) => const TodayScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const TodayScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.wardrobe,
-            builder: (context, state) => const WardrobeScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const WardrobeScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.outfits,
-            builder: (context, state) => const OutfitsScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const OutfitsScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.forum,
-            builder: (context, state) => const ForumFeedScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ForumFeedScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.profile,
-            builder: (context, state) => const ProfileScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ProfileScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.profileEdit,
-            builder: (context, state) => const EditProfileScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const EditProfileScreen(),
+        ),
           ),
           GoRoute(
             path: AppRoutes.profileSettings,
-            builder: (context, state) => const ProfileSettingsScreen(),
+            pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ProfileSettingsScreen(),
+        ),
           ),
         ],
       ),
       GoRoute(
         path: AppRoutes.wardrobeAdd,
-        builder: (context, state) => const mobile_add_item.AddItemScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const mobile_add_item.AddItemScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.publicProfile,
-        builder: (context, state) => PublicProfileScreen(
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: PublicProfileScreen(
           userId: state.pathParameters['userId']!,
+        ),
         ),
       ),
       GoRoute(
         path: AppRoutes.publicProfileFollowers,
-        builder: (context, state) => FollowListScreen(
-          userId: state.pathParameters['userId']!,
-          showFollowers: true,
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: FollowListScreen(
+            userId: state.pathParameters['userId']!,
+            showFollowers: true,
+          ),
         ),
       ),
       GoRoute(
         path: AppRoutes.publicProfileFollowing,
-        builder: (context, state) => FollowListScreen(
-          userId: state.pathParameters['userId']!,
-          showFollowers: false,
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: FollowListScreen(
+            userId: state.pathParameters['userId']!,
+            showFollowers: false,
+          ),
         ),
       ),
       GoRoute(
         path: AppRoutes.wardrobeItemDetail,
-        builder: (context, state) => ItemDetailScreen(
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: ItemDetailScreen(
           itemId: state.pathParameters['itemId']!,
+        ),
         ),
       ),
       GoRoute(
         path: AppRoutes.forumPostDetail,
-        builder: (context, state) => ForumPostDetailScreen(
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: ForumPostDetailScreen(
           postId: state.pathParameters['postId']!,
+        ),
         ),
       ),
       GoRoute(
         path: AppRoutes.forumShare,
-        builder: (context, state) => ForumShareScreen(
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: ForumShareScreen(
           outfitId: state.pathParameters['outfitId']!,
+        ),
         ),
       ),
       GoRoute(
         path: AppRoutes.forumCreatePost,
-        builder: (context, state) => const ForumCreatePostScreen(),
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ForumCreatePostScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.stylistBrowse,
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const StylistBrowseScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/stylist/editor/:targetUserId',
+        pageBuilder: (context, state) {
+          final targetUser = state.extra as AppUser;
+          return _slideTransition(context: context, state: state, child: StylistOutfitEditorScreen(targetUser: targetUser));
+        },
+      ),
+      GoRoute(
+        path: '/recommendations/inbox',
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const RecommendationsInboxScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/notifications',
+        pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const NotificationsScreen(),
+        ),
       ),
       if (kDebugMode)
         GoRoute(
           path: AppRoutes.devShowcase,
-          builder: (context, state) => const ComponentShowcaseScreen(),
+          pageBuilder: (context, state) => _slideTransition(
+          context: context,
+          state: state,
+          child: const ComponentShowcaseScreen(),
+        ),
         ),
     ],
     errorBuilder: (context, state) => Scaffold(
@@ -221,6 +348,30 @@ GoRouter appRouter(Ref ref) {
 }
 
 /// GoRouter'ı Riverpod auth + onboarding state değişikliklerine karşı reaktif yapan köprü.
+CustomTransitionPage<void> _slideTransition({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOutCubic;
+
+      final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 280),
+  );
+}
+
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier(Ref ref) {
     ref.listen(authStateChangesProvider, (_, _) => notifyListeners());

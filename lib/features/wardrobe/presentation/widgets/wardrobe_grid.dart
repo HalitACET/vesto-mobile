@@ -30,40 +30,48 @@ class WardrobeGrid extends ConsumerWidget {
     final rule = weather != null ? _getWeatherRule(weather.temperature) : null;
 
     if (isLoading) {
-      return GridView.builder(
+      return SliverPadding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.75,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (_, _) => const WardrobeSkeletonCard(isListMode: false),
+            childCount: 6,
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+      sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.75,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemCount: 6,
-        itemBuilder: (_, _) => const WardrobeSkeletonCard(isListMode: false),
-      );
-    }
+        delegate: SliverChildBuilderDelegate(
+          (_, index) {
+            final item = items[index];
+            final isSuitable = _checkSuitability(item, rule);
 
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
+            return WardrobeItemCard(
+              item: item,
+              onTap: () => onTap(item),
+              onLongPress: () => onLongPress(item),
+              isListMode: false,
+              isSuitableForToday: isSuitable,
+            );
+          },
+          childCount: items.length,
+        ),
       ),
-      itemCount: items.length,
-      itemBuilder: (_, index) {
-        final item = items[index];
-        final isSuitable = _checkSuitability(item, rule);
-
-        return WardrobeItemCard(
-          item: item,
-          onTap: () => onTap(item),
-          onLongPress: () => onLongPress(item),
-          isListMode: false,
-          isSuitableForToday: isSuitable,
-        );
-      },
     );
   }
 }
@@ -89,30 +97,42 @@ class WardrobeList extends ConsumerWidget {
     final rule = weather != null ? _getWeatherRule(weather.temperature) : null;
 
     if (isLoading) {
-      return ListView.separated(
+      return SliverPadding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        itemCount: 6,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
-        itemBuilder: (_, _) => const WardrobeSkeletonCard(isListMode: true),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (_, index) => const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: WardrobeSkeletonCard(isListMode: true),
+            ),
+            childCount: 6,
+          ),
+        ),
       );
     }
 
-    return ListView.separated(
+    return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-      itemCount: items.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (_, index) {
-        final item = items[index];
-        final isSuitable = _checkSuitability(item, rule);
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (_, index) {
+            final item = items[index];
+            final isSuitable = _checkSuitability(item, rule);
 
-        return WardrobeItemCard(
-          item: item,
-          onTap: () => onTap(item),
-          onLongPress: () => onLongPress(item),
-          isListMode: true,
-          isSuitableForToday: isSuitable,
-        );
-      },
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: WardrobeItemCard(
+                item: item,
+                onTap: () => onTap(item),
+                onLongPress: () => onLongPress(item),
+                isListMode: true,
+                isSuitableForToday: isSuitable,
+              ),
+            );
+          },
+          childCount: items.length,
+        ),
+      ),
     );
   }
 }

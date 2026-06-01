@@ -266,7 +266,7 @@ class _SuggestOutfitSheetState extends ConsumerState<SuggestOutfitSheet> {
                               : ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: currentSlotItems.length,
-                                  separatorBuilder: (_, __) => SizedBox(width: spacing.sm),
+                                  separatorBuilder: (_, _) => SizedBox(width: spacing.sm),
                                   itemBuilder: (context, index) {
                                     final item = currentSlotItems[index];
                                     final isSelected = currentSelectedId == item.id;
@@ -295,8 +295,8 @@ class _SuggestOutfitSheetState extends ConsumerState<SuggestOutfitSheet> {
                                               child: CachedNetworkImage(
                                                 imageUrl: item.bgRemovedUrl ?? item.imageUrl ?? '',
                                                 fit: BoxFit.contain,
-                                                placeholder: (_, __) => Container(color: AppColors.pearl),
-                                                errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
+                                                placeholder: (_, _) => Container(color: AppColors.pearl),
+                                                errorWidget: (_, _, _) => const Icon(Icons.broken_image),
                                               ),
                                             ),
                                             if (isSelected)
@@ -444,8 +444,8 @@ class _SuggestOutfitSheetState extends ConsumerState<SuggestOutfitSheet> {
                 child: CachedNetworkImage(
                   imageUrl: item.bgRemovedUrl ?? item.imageUrl ?? '',
                   fit: BoxFit.contain,
-                  placeholder: (_, __) => Container(color: AppColors.pearl),
-                  errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
+                  placeholder: (_, _) => Container(color: AppColors.pearl),
+                  errorWidget: (_, _, _) => const Icon(Icons.broken_image),
                 ),
               )
             : Center(

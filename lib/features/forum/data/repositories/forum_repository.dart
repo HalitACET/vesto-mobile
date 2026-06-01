@@ -106,10 +106,10 @@ class ForumRepository {
       'createdAt': FieldValue.serverTimestamp(),
       'isArchived': false,
       'likeCount': 0,
-      if (commentType != null) 'commentType': commentType,
-      if (outfitSuggestion != null) 'outfitSuggestion': outfitSuggestion,
-      if (parentId != null) 'parentId': parentId,
-      if (replyToDisplayName != null) 'replyToDisplayName': replyToDisplayName,
+      'commentType': commentType,
+      'outfitSuggestion': outfitSuggestion,
+      'parentId': parentId,
+      'replyToDisplayName': replyToDisplayName,
     });
 
     await _firestore.collection('forumPosts').doc(postId).update({

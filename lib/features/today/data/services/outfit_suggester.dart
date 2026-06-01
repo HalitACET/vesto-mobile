@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobile/core/constants/weather_outfit_rules.dart';
 import 'package:mobile/features/today/data/models/outfit_suggestion.dart';
 import 'package:mobile/features/today/data/models/weather_data.dart';
@@ -39,14 +40,14 @@ class OutfitSuggester {
     ).toList();
 
     // Debug logging
-    print('DEBUG: Suggester - Temp: ${weather.temperature}');
-    print('DEBUG: Suggester - Tops found: ${eligibleTops.length}');
-    print('DEBUG: Suggester - Bottoms found: ${eligibleBottoms.length}');
-    print('DEBUG: Suggester - Outerwear found: ${eligibleOuterwear.length}');
-    print('DEBUG: Suggester - Shoes found: ${eligibleShoes.length}');
+    debugPrint('DEBUG: Suggester - Temp: ${weather.temperature}');
+    debugPrint('DEBUG: Suggester - Tops found: ${eligibleTops.length}');
+    debugPrint('DEBUG: Suggester - Bottoms found: ${eligibleBottoms.length}');
+    debugPrint('DEBUG: Suggester - Outerwear found: ${eligibleOuterwear.length}');
+    debugPrint('DEBUG: Suggester - Shoes found: ${eligibleShoes.length}');
 
     if (eligibleTops.isEmpty || eligibleBottoms.isEmpty) {
-      print('DEBUG: Suggester - Returning empty due to missing tops/bottoms');
+      debugPrint('DEBUG: Suggester - Returning empty due to missing tops/bottoms');
       return [];
     }
 

@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:mobile/app/app.dart';
 import 'package:mobile/firebase_options.dart';
+import 'package:mobile/core/services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // FCM'i başlat
+  final fcmService = FcmService();
+  await fcmService.initialize();
 
   await GoogleSignIn.instance.initialize();
 

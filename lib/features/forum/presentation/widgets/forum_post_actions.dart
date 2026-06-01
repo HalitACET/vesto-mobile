@@ -64,6 +64,12 @@ class _ForumPostActionsState extends ConsumerState<ForumPostActions> {
               children: [
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    );
+                  },
                   child: Icon(
                     _isLiked ? Icons.favorite : Icons.favorite_border,
                     key: ValueKey(_isLiked),
@@ -124,17 +130,17 @@ class _ForumPostActionsState extends ConsumerState<ForumPostActions> {
             );
           },
           behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.checkroom,
                   color: AppColors.onyx,
                   size: 22,
                 ),
-                const SizedBox(width: 6),
-                const Text(
+                SizedBox(width: 6),
+                Text(
                   'Kombin Öner',
                   style: TextStyle(
                     fontFamily: 'Inter',

@@ -10,6 +10,8 @@ import 'package:mobile/features/auth/presentation/providers/auth_providers.dart'
 import 'package:mobile/features/profile/presentation/providers/profile_providers.dart';
 import 'package:mobile/features/wardrobe/presentation/providers/wardrobe_providers.dart';
 import 'package:mobile/features/outfits/presentation/providers/outfit_providers.dart';
+import 'package:mobile/features/stylist/presentation/providers/stylist_providers.dart';
+import 'package:mobile/features/stylist/presentation/providers/notifications_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -34,6 +36,10 @@ class ProfileScreen extends ConsumerWidget {
             icon: const Icon(Icons.edit_outlined, color: AppColors.onyx),
             onPressed: () => context.push('/profile/edit'),
           ),
+          // Bildirim ikonu
+          const _NotificationBadgeButton(),
+          // Inbox butonu (badge)
+          const _InboxBadgeButton(),
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: AppColors.onyx),
             onPressed: () => context.push('/profile/settings'),
@@ -96,6 +102,9 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+
+                // Stilist Seçenekleri
+                _StylistSection(user: user),
 
                 const SizedBox(height: 32),
 
@@ -343,3 +352,180 @@ class _PrivacySection extends ConsumerWidget {
     );
   }
 }
+
+// ── Notification Badge Button ─────────────────────────────────────────────────
+
+class _NotificationBadgeButton extends ConsumerWidget {
+  const _NotificationBadgeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifsAsync = ref.watch(notificationsProvider);
+    final unreadCount =
+        notifsAsync.value?.where((n) => !n.isRead).length ?? 0;
+
+    return IconButton(
+      icon: Badge(
+        label: unreadCount > 0 ? Text('$unreadCount') : null,
+        isLabelVisible: unreadCount > 0,
+        backgroundColor: AppColors.onyx,
+        textColor: AppColors.pearl,
+        child: const Icon(
+          Icons.notifications_outlined,
+          color: AppColors.onyx,
+        ),
+      ),
+      onPressed: () => context.push('/notifications'),
+      tooltip: 'Bildirimler',
+    );
+  }
+}
+
+// ── Inbox Badge Button ────────────────────────────────────────────────────────
+
+class _InboxBadgeButton extends ConsumerWidget {
+  const _InboxBadgeButton();
+
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countAsync = ref.watch(pendingRecommendationCountProvider);
+    final count = countAsync.value ?? 0;
+
+    return IconButton(
+      icon: Badge(
+        label: count > 0 ? Text('$count') : null,
+        isLabelVisible: count > 0,
+        backgroundColor: AppColors.onyx,
+        textColor: AppColors.pearl,
+        child: const Icon(
+          Icons.inbox_outlined,
+          color: AppColors.onyx,
+        ),
+      ),
+      onPressed: () => context.push('/recommendations/inbox'),
+      tooltip: 'Kombin Önerileri',
+    );
+  }
+}
+
+// ── Stylist Section ───────────────────────────────────────────────────────────
+
+class _StylistSection extends ConsumerWidget {
+  final AppUser user;
+  const _StylistSection({required this.user});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        const Divider(color: AppColors.mist, height: 1),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'STİLİSTLİK',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.stone,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  if (user.isStylistModeActive) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.onyx,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: const Text(
+                        '✦ Aktif',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StylistNavCard(
+                      icon: Icons.people_outline,
+                      label: 'Stilistleri Keşfet',
+                      onTap: () => context.push('/stylist/browse'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _StylistNavCard(
+                      icon: Icons.mail_outline,
+                      label: 'Gelen Öneriler',
+                      onTap: () => context.push('/recommendations/inbox'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StylistNavCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _StylistNavCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.mist),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppColors.onyx),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onyx,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+

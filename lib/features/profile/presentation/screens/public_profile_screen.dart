@@ -7,8 +7,11 @@ import 'package:mobile/app/theme/app_colors.dart';
 import 'package:mobile/app/theme/app_typography.dart';
 import 'package:mobile/core/network/firebase_providers.dart';
 import 'package:mobile/features/auth/data/models/app_user.dart';
+import 'package:mobile/features/auth/presentation/providers/auth_providers.dart';
 import 'package:mobile/features/profile/presentation/providers/profile_providers.dart';
 import 'package:mobile/features/wardrobe/presentation/widgets/wardrobe_item_card.dart';
+import 'package:mobile/core/widgets/organisms/vesto_error_view.dart';
+import 'package:mobile/features/profile/presentation/widgets/public_profile_skeleton.dart';
 
 class PublicProfileScreen extends ConsumerWidget {
   final String userId;
@@ -24,14 +27,14 @@ class PublicProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.pearl,
       body: profileAsync.when(
-        loading: () => const Scaffold(
-          backgroundColor: AppColors.pearl,
-          body: Center(child: CircularProgressIndicator(color: AppColors.onyx)),
-        ),
+        loading: () => const PublicProfileSkeleton(),
         error: (err, _) => Scaffold(
           backgroundColor: AppColors.pearl,
           appBar: AppBar(backgroundColor: AppColors.pearl, elevation: 0),
-          body: const Center(child: Text('Kullanıcı bulunamadı')),
+          body: VestoErrorView(
+            message: 'Kullanıcı bulunamadı',
+            onRetry: () => ref.invalidate(userProfileProvider(userId)),
+          ),
         ),
         data: (user) {
           if (user == null) {
@@ -108,14 +111,85 @@ class PublicProfileScreen extends ConsumerWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                if (user.isStylistModeActive)
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.onyx,
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: const Text(
+                                      '✦ Stilist',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
-                          if (!isOwnProfile) ...[
-                            const SizedBox(width: 8),
-                            _FollowButton(userId: userId),
-                          ],
                         ],
+                      ),
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final currentUserAsync = ref.watch(currentUserProvider);
+                          final currentUser = currentUserAsync.value;
+                          final isSelf = currentUser?.uid == userId;
+                          final isStylist = currentUser?.isStylistModeActive == true;
+
+                          if (isSelf) return const SizedBox.shrink();
+
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Row(
+                              children: [
+                                // Follow butonu (mevcut, dokunma)
+                                Expanded(
+                                  child: _FollowButton(userId: userId),
+                                ),
+
+                                // Kombin Öner — SADECE stilist modundaki kullanıcıya göster
+                                if (isStylist) ...[
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => context.push(
+                                        '/stylist/editor/$userId',
+                                        extra: user,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.auto_awesome_outlined,
+                                        size: 16,
+                                        color: AppColors.onyx,
+                                      ),
+                                      label: const Text(
+                                        'Kombin Öner',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.onyx,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(color: AppColors.onyx),
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       if (user.bio.isNotEmpty) ...[
                         const SizedBox(height: 12),
@@ -156,6 +230,11 @@ class PublicProfileScreen extends ConsumerWidget {
                       ],
                       const SizedBox(height: 16),
                       _StatsRow(user: user),
+                      // Stilist ise stats kartını göster
+                      if (user.isStylistModeActive) ...[
+                        const SizedBox(height: 8),
+                        _StylistStatsCard(user: user),
+                      ],
                       const SizedBox(height: 8),
                       const Divider(color: AppColors.mist, height: 1),
                     ],
@@ -376,3 +455,144 @@ class _StatDivider extends StatelessWidget {
     );
   }
 }
+
+// ── Stylist Stats Card ────────────────────────────────────────────────────────
+
+class _StylistStatsCard extends StatelessWidget {
+  final AppUser user;
+  const _StylistStatsCard({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final acceptRate = user.suggestionsSent > 0
+        ? (user.suggestionsAccepted / user.suggestionsSent * 100).round()
+        : 0;
+
+    final isTrusted = acceptRate >= 70 && user.suggestionsSent >= 5;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.mist),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome, size: 14, color: AppColors.stone),
+              const SizedBox(width: 6),
+              const Text(
+                'STİLİST İSTATİSTİKLERİ',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.5,
+                  color: AppColors.stone,
+                ),
+              ),
+              const Spacer(),
+              if (isTrusted)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.verified, size: 12, color: Colors.amber.shade700),
+                      const SizedBox(width: 3),
+                      Text(
+                        'Güvenilir',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.amber.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _StylistStatItem(
+                value: '${user.suggestionsSent}',
+                label: 'Öneri',
+              ),
+              _StylistStatItem(
+                value: '%$acceptRate',
+                label: 'Kabul',
+              ),
+              _StylistStatItem(
+                value: user.ratingCount > 0
+                    ? user.averageRating.toStringAsFixed(1)
+                    : '—',
+                label: 'Puan',
+                icon: user.ratingCount > 0 ? Icons.star : null,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StylistStatItem extends StatelessWidget {
+  final String value;
+  final String label;
+  final IconData? icon;
+
+  const _StylistStatItem({
+    required this.value,
+    required this.label,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16, color: Colors.amber),
+              const SizedBox(width: 2),
+            ],
+            Text(
+              value,
+              style: const TextStyle(
+                fontFamily: 'Cormorant',
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: AppColors.onyx,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 11,
+            color: AppColors.stone,
+          ),
+        ),
+      ],
+    );
+  }
+}
+

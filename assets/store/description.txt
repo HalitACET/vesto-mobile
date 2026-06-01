@@ -1,0 +1,51 @@
+Kısa Açıklama (80 karakter max)
+Akıllı gardırop asistanı. Hava durumuna göre kombin önerileri al.
+
+Uzun Açıklama (4000 karakter max)
+Vesto, gardırobunuzu yöneten ve size en uygun kombinleri öneren
+akıllı moda asistanınızdır.
+
+🤖 YAPAY ZEKA ANALİZİ
+Kıyafetlerinizin fotoğrafını çekin — Vesto yapay zeka ile
+renk, kategori ve stil analizini otomatik yapar.
+
+🌤️ HAVA DURUMUNA GÖRE KOMBİN
+Bulunduğunuz şehrin hava durumuna göre gardırobunuzdan
+en uygun kombinleri önerir. Bugün ne giyeceğinizi artık
+düşünmenize gerek yok.
+
+👗 GARDIROB YÖNETİMİ
+Tüm kıyafetlerinizi dijital gardırobunuzda saklayın.
+Kategori, renk ve sezona göre filtreleyin.
+
+✨ KOMBIN EDİTÖRÜ
+4 slotlu manken üzerinde kombinlerinizi oluşturun.
+Üst, alt, ayakkabı ve aksesuar — her detay yerli yerinde.
+
+💬 TOPLULUK
+Forum'da kombinlerinizi paylaşın, beğenin, yorum yapın.
+Moda tutkunlarıyla bir araya gelin.
+
+🎨 STİLİST MODU
+Stilist modu açın ve arkadaşlarınıza gardıroplarından
+özel kombin öneriler gönderin. Gerçek bir stilist deneyimi.
+
+📊 STİL RAPORUNUZ
+Gardırop alışkanlıklarınızı analiz edin. Hangi renkleri
+daha çok kullandığınızı, en sevdiğiniz kombinleri keşfedin.
+
+---
+
+Vesto ile gardırobunuz artık sizin için çalışıyor.
+
+Gizlilik Politikası: vesto.app/privacy
+İletişim: hello@vesto.app
+
+Değişiklik Notları (İlk Sürüm)
+İlk sürüm 🎉
+
+- AI destekli kıyafet analizi
+- Hava durumuna göre kombin önerileri
+- 4 slotlu manken kombin editörü
+- Forum ve topluluk özellikleri
+- Stilist modu — arkadaşlarına kombin öner

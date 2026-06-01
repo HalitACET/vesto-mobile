@@ -29,3 +29,11 @@ Thumbs.db
 # Build artifacts (eklendi 2026-05)
 custom_lint.log
 android/.kotlin/
+
+# Keystore
+*.jks
+*.keystore
+android/key.properties
+
+# Release
+build/

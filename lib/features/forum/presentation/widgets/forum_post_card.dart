@@ -48,7 +48,10 @@ class _ForumPostCardState extends ConsumerState<ForumPostCard> {
 
             // Outfit preview (2x2 mini grid)
             if (widget.post.outfitId != null && widget.post.outfitId!.isNotEmpty) ...[
-              _OutfitPreview(outfitId: widget.post.outfitId!),
+              Hero(
+                tag: 'forum-post-${widget.post.id}',
+                child: _OutfitPreview(outfitId: widget.post.outfitId!),
+              ),
               const SizedBox(height: 12),
             ],
 
@@ -254,6 +257,7 @@ class _ItemThumb extends ConsumerWidget {
         return CachedNetworkImage(
           imageUrl: item.bgRemovedUrl ?? item.imageUrl ?? '',
           fit: BoxFit.contain,
+          fadeInDuration: const Duration(milliseconds: 300),
           placeholder: (context, url) => Container(color: AppColors.mist.withValues(alpha: 0.1)),
           errorWidget: (context, url, error) => Container(color: AppColors.mist.withValues(alpha: 0.1)),
         );

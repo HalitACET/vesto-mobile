@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:mobile/features/auth/presentation/providers/auth_providers.dart';
 import 'package:mobile/features/wardrobe/data/models/wardrobe_item.dart';
@@ -12,21 +13,21 @@ OutfitRepository outfitRepository(Ref ref) {
   return OutfitRepository();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<Outfit>> outfitsStream(Ref ref) {
   // Use authStateChanges directly to avoid .value loading state issues
   return ref.watch(authStateChangesProvider).when(
     data: (user) {
       if (user == null) return Stream.value([]);
-      print('DEBUG: Fetching outfits for user: ${user.uid}');
+      debugPrint('DEBUG: Fetching outfits for user: ${user.uid}');
       return ref.watch(outfitRepositoryProvider).watchOutfits(user.uid);
     },
     loading: () {
-      print('DEBUG: Auth state is loading...');
+      debugPrint('DEBUG: Auth state is loading...');
       return const Stream.empty();
     },
     error: (err, stack) {
-      print('DEBUG: Auth error: $err');
+      debugPrint('DEBUG: Auth error: $err');
       return Stream.error(err);
     },
   );
@@ -67,7 +68,7 @@ Future<List<WardrobeItem>> wardrobeItemsByIds(Ref ref, String idsString) async {
   if (idsString.isEmpty) return [];
   final ids = idsString.split(',').where((id) => id.isNotEmpty).toList();
   
-  print('DEBUG: Fetching wardrobe items by IDs: $ids');
+  debugPrint('DEBUG: Fetching wardrobe items by IDs: $ids');
   return ref.watch(wardrobeRepositoryProvider).getItemsByIds(ids);
 }
 

@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'suggestions_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<OutfitSuggestion>> outfitSuggestions(Ref ref) async {
   try {
     final weatherAsync = await ref.watch(currentWeatherProvider.future);

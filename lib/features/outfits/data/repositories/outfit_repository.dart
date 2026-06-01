@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile/features/outfits/data/models/outfit.dart';
 
@@ -11,13 +12,13 @@ class OutfitRepository {
 
   // Stream of all outfits for a user
   Stream<List<Outfit>> watchOutfits(String userId) {
-    print('DEBUG: watchOutfits starting for $userId');
+    debugPrint('DEBUG: watchOutfits starting for $userId');
     return _outfits
         .where('userId', isEqualTo: userId)
         .where('isArchived', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
-          print('DEBUG: watchOutfits received snapshot with ${snapshot.docs.length} docs');
+          debugPrint('DEBUG: watchOutfits received snapshot with ${snapshot.docs.length} docs');
           final outfits = snapshot.docs
             .map((doc) => Outfit.fromFirestore(doc))
             .toList();

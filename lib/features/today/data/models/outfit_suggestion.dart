@@ -20,10 +20,10 @@ class OutfitSuggestion {
   });
 
   List<WardrobeItem> get items => [
-    if (top != null) top!,
-    if (bottom != null) bottom!,
-    if (outerwear != null) outerwear!,
-    if (shoes != null) shoes!,
-    if (accessory != null) accessory!,
+    ?top,
+    ?bottom,
+    ?outerwear,
+    ?shoes,
+    ?accessory,
   ];
 }
