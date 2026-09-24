@@ -19,9 +19,14 @@ class OutfitRepository {
         .snapshots()
         .map((snapshot) {
           debugPrint('DEBUG: watchOutfits received snapshot with ${snapshot.docs.length} docs');
-          final outfits = snapshot.docs
-            .map((doc) => Outfit.fromFirestore(doc))
-            .toList();
+          final outfits = <Outfit>[];
+          for (final doc in snapshot.docs) {
+            try {
+              outfits.add(Outfit.fromFirestore(doc));
+            } catch (e) {
+              debugPrint('DEBUG: Bozuk kombin verisi atlandi (ID: ${doc.id}). Hata: $e');
+            }
+          }
           
           // Sort in memory instead of requiring a DB index
           outfits.sort((a, b) => b.createdAt.compareTo(a.createdAt));

@@ -28,6 +28,12 @@ abstract class Outfit with _$Outfit {
     return Outfit.fromJson({
       ...data,
       'id': doc.id,
+      'items': data['items'] ?? const <String, dynamic>{},
+      'tags': data['tags'] ?? [],
+      'wearCount': data['wearCount'] ?? 0,
+      'isFavorite': data['isFavorite'] ?? false,
+      'isArchived': data['isArchived'] ?? false,
+      'name': data['name'] ?? 'İsimsiz Kombin',
       'createdAt': (data['createdAt'] as Timestamp?)?.toDate().toIso8601String() ?? DateTime.now().toIso8601String(),
       'lastWorn': data['lastWorn'] != null 
           ? (data['lastWorn'] as Timestamp).toDate().toIso8601String()
