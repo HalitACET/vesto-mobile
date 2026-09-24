@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:mobile/core/widgets/molecules/vesto_bottom_nav.dart';
 import 'package:mobile/main.dart' as app;
 
 void main() {
@@ -24,8 +25,9 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 10));
 
       // Authenticated ise bottom nav görünür
-      final bottomNav = find.byType(BottomNavigationBar)
-          .or(find.byType(NavigationBar));
+      final bottomNav = find.byWidgetPredicate(
+        (w) => w is VestoBottomNav || w is BottomNavigationBar || w is NavigationBar,
+      );
 
       if (tester.any(bottomNav)) {
         expect(bottomNav, findsOneWidget);
