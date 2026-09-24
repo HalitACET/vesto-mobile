@@ -142,12 +142,12 @@ class TodayScreen extends ConsumerWidget {
             const Icon(Icons.checkroom_outlined, color: AppColors.mist, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Gardırobun Henüz Boş',
+              'Kombin İçin Eksik Var',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Sana özel öneriler yapabilmem için önce birkaç parça kıyafet eklemelisin.',
+              'Sana özel kombin önerebilmem için gardırobunda en az 1 adet Üst ve 1 adet Alt giyim bulunmalı.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.stone, fontSize: 13),
             ),

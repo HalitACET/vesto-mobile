@@ -19,25 +19,39 @@ class OutfitSuggester {
 
     final rule = _getWeatherRule(weather.temperature);
     
-    final eligibleTops = wardrobeItems.where((i) => 
+    var eligibleTops = wardrobeItems.where((i) => 
       i.category == ItemCategory.top && 
       rule.topCategories.contains(i.subcategory)
     ).toList();
     
-    final eligibleBottoms = wardrobeItems.where((i) => 
+    var eligibleBottoms = wardrobeItems.where((i) => 
       i.category == ItemCategory.bottom && 
       rule.bottomCategories.contains(i.subcategory)
     ).toList();
     
-    final eligibleShoes = wardrobeItems.where((i) => 
+    var eligibleShoes = wardrobeItems.where((i) => 
       i.category == ItemCategory.footwear && 
       rule.shoeCategories.contains(i.subcategory)
     ).toList();
     
-    final eligibleOuterwear = wardrobeItems.where((i) => 
+    var eligibleOuterwear = wardrobeItems.where((i) => 
       i.category == ItemCategory.outerwear && 
       rule.outerwearCategories.contains(i.subcategory)
     ).toList();
+
+    // Fallback: Hava durumuna uyan parça bulunamazsa, dolaptaki herhangi bir parçayı al (boş dönmemek için)
+    if (eligibleTops.isEmpty) {
+      eligibleTops = wardrobeItems.where((i) => i.category == ItemCategory.top).toList();
+    }
+    if (eligibleBottoms.isEmpty) {
+      eligibleBottoms = wardrobeItems.where((i) => i.category == ItemCategory.bottom).toList();
+    }
+    if (eligibleShoes.isEmpty) {
+      eligibleShoes = wardrobeItems.where((i) => i.category == ItemCategory.footwear).toList();
+    }
+    if (eligibleOuterwear.isEmpty) {
+      eligibleOuterwear = wardrobeItems.where((i) => i.category == ItemCategory.outerwear).toList();
+    }
 
     // Debug logging
     debugPrint('DEBUG: Suggester - Temp: ${weather.temperature}');
