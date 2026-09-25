@@ -122,7 +122,7 @@ class AuthRepository {
       await _firestore
           .collection('users')
           .doc(user.uid)
-          .update(user.toFirestore());
+          .update(user.toProfileUpdate());
       return Ok(user);
     } catch (_) {
       return const Err(UnknownAuthFailure('Profil güncellenemedi.'));

@@ -330,6 +330,24 @@ class AppUser extends Equatable {
         'ratingCount': ratingCount,
       };
 
+  /// Fields the profile setup flow may write to an existing user doc.
+  /// Must stay within the owner-editable allowlist in firestore.rules;
+  /// role, counters and stylist stats are server/admin-managed.
+  Map<String, dynamic> toProfileUpdate() => {
+        'displayName': displayName,
+        if (photoURL != null) 'photoURL': photoURL,
+        if (gender != null) 'gender': gender!.value,
+        if (birthYear != null) 'birthYear': birthYear,
+        if (heightCm != null) 'heightCm': heightCm,
+        if (weightKg != null) 'weightKg': weightKg,
+        if (location != null) 'location': location!.toMap(),
+        if (stylePreferences != null)
+          'stylePreferences': stylePreferences!.toMap(),
+        'isProfileComplete': isProfileComplete,
+        if (lastCompletedStep != null)
+          'lastCompletedStep': lastCompletedStep!.value,
+      };
+
   AppUser copyWith({
     String? uid,
     String? email,
